@@ -1,0 +1,38 @@
+/* Base styling for the entire header */
+.app-header {
+    background-color: #283048;  /* Dark bluish-gray background */
+    color: #fff;  /* White text color */
+    padding: 20px;  /* Spacing around content */
+    text-align: center;  /* Center align the text */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
+  }
+  
+  /* Styling for the main title */
+  .app-header h1 {
+    font-size: 2.5em;  /* Large font size for visibility */
+    margin-bottom: 10px;  /* Spacing below the title */
+    font-weight: bold;  /* Bold font for the title */
+    letter-spacing: 1px;  /* Space out the letters slightly */
+  }
+  
+  /* Navigation styling */
+  .app-header nav {
+    display: inline-block;  /* Align links in a line */
+    margin: 10px 0;  /* Spacing around navigation */
+  }
+  
+  .app-header nav a {
+    color: #fff;  /* White text color for links */
+    text-decoration: none;  /* No underline */
+    font-size: 1.2em;  /* Slightly larger font size for navigation links */
+    padding: 10px 15px;  /* Padding for touch targets */
+    border-radius: 5px;  /* Rounded corners for links */
+    transition: background-color 0.3s;  /* Smooth transition for hover effect */
+  }
+  
+  /* Hover and focus styles for links */
+  .app-header nav a:hover,
+  .app-header nav a:focus {
+    background-color: #3a506b;  /* Slightly lighter blue on hover/focus */
+  }
+  
