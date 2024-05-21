@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
-//import LandingPage from "./components/LandingPage";
-import Login from "./components/Login";
+import React from 'react';
+import './App.css';
+import LandingPage from './components/LandingPage';
 
 function App() {
-  
   return (
     <div className="App">
-    <Login/>
+      <LandingPage />
     </div>
-  )
+  );
 }
 
 export default App;

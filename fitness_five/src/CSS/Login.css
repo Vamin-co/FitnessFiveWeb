@@ -1,14 +1,4 @@
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f9f9f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.container {
+.login-page .container {
     width: 100%;
     max-width: 420px;
     padding: 20px;
@@ -18,65 +8,67 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: auto;
+    margin-top: 150px; /* Added margin to avoid alignment issues */
 }
 
-.header {
+.login-page .header {
     width: 100%;
     text-align: center;
     margin-bottom: 20px;
 }
 
-.logo {
+.login-page .logo {
     color: #333;
     font-size: 24px;
     font-weight: 700;
 }
 
-.login-box {
+.login-page .login-box {
     width: 100%;
 }
 
-.login-header {
+.login-page .login-header {
     text-align: center;
     margin-bottom: 20px;
 }
 
-.login-header h1 {
+.login-page .login-header h1 {
     color: #333;
     font-size: 28px;
     font-weight: 700;
     margin: 0;
 }
 
-.login-header p {
+.login-page .login-header p {
     color: #666;
     font-size: 14px;
     margin: 5px 0 0;
 }
 
-.login-header a {
+.login-page .login-header a {
     color: #007bff;
     text-decoration: none;
     transition: color 0.2s;
 }
 
-.login-header a:hover {
+.login-page .login-header a:hover {
     color: #0056b3;
 }
 
-.login-form {
+.login-page .login-form {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.input-group {
+.login-page .input-group {
     width: 100%;
     position: relative;
 }
 
-.input-group input {
+.login-page .input-group input {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid #ccc;
@@ -88,11 +80,11 @@ body {
     box-sizing: border-box;
 }
 
-.input-group input:focus {
+.login-page .input-group input:focus {
     border-color: #007bff;
 }
 
-.input-group button {
+.login-page .input-group button {
     width: 100%;
     padding: 12px;
     background-color: #007bff;
@@ -105,22 +97,22 @@ body {
     transition: background-color 0.3s;
 }
 
-.input-group button:hover {
+.login-page .input-group button:hover {
     background-color: #0056b3;
 }
 
-.terms {
+.login-page .terms {
     text-align: center;
     color: #888;
     font-size: 12px;
     margin-top: 20px;
 }
 
-.terms a {
+.login-page .terms a {
     color: #007bff;
     text-decoration: none;
 }
 
-.terms a:hover {
+.login-page .terms a:hover {
     color: #0056b3;
 }
