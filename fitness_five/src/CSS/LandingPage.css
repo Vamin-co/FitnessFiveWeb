@@ -3,11 +3,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* background-color: #f8f8f8; */
 }
 
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
+  
 }
 
 /* Header */
@@ -22,37 +24,59 @@ body {
   left: 0;
   right: 0;
   z-index: 999;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-content: flex-start;
+  
 }
 
+.header button {
+  padding: 12px 24px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.header button:hover {
+  background-color: #666;
+}
 
 .header h1 {
   margin: 0;
   font-size: 24px;
+  background-color: #f2f2f2;
 }
 
 .nav-links {
   display: flex;
   gap: 20px;
   list-style: none;
+  align-items: center;
+  background-color: #f2f2f2;
 }
 
 .nav-links li a {
   text-decoration: none;
   color: #333;
   transition: color 0.3s;
+  background-color: #f2f2f2;
 }
 
 .nav-links li a:hover {
   color: #666;
 }
 
-.main-section {
+/* Wrapper to add colored margin */
+.main-wrapper {
   background-color: #f8f8f8;
+  padding-top: 150px; /* Adjust to match the margin of .main-section */
+}
+
+.main-section {
+  /* background-color: #f8f8f8; */
   text-align: center;
-  margin-top: 80px; /* To create space for the fixed header */
+  margin-top: 0; /* Reset margin as it's handled by the wrapper */
+  /* padding: 20px; Adjust padding to create space inside the section */
 }
 
 /* Hero Section */
@@ -64,13 +88,13 @@ body {
   padding: 100px 50px;
   background-color: #f8f8f8;
   text-align: center;
-  margin-top: 80px; /* To create space for the fixed header */
+  /* margin-top: 80px;  To create space for the fixed header */
 }
 
 
 .hero-content {
   max-width: 800px;
-  margin: 0 auto 40px;
+  margin: 0 auto;
 }
 
 .hero-content h2 {
@@ -102,7 +126,7 @@ body {
 
 .hero-image {
   max-width: 100%;
-  height: 100px;
+  height: auto;
   border-radius: 25px;
 }
 
@@ -116,12 +140,12 @@ body {
 .testimonials {
   display: flex;
   justify-content: space-around;
-  padding: 50px;
 }
 
 .testimonial {
   text-align: center;
   max-width: 300px;
+  margin: 75px;
 }
 
 .testimonial img {
