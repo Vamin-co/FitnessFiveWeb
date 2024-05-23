@@ -6,6 +6,11 @@ import user2Image from '../Images/avatar2.jpg'; // Adjust the path as necessary
 import user3Image from '../Images/avatar3.jpg'; // Adjust the path as necessary
 
 const LandingPage = () => {
+  const handleLogin = () => {
+    // Add the logic for login here
+    window.location.href = '/Login';
+  };
+
   return (
     <div>
       <header className="header">
@@ -16,14 +21,16 @@ const LandingPage = () => {
               <a href="#">About</a>
             </li>
             <li>
-              <a href="#">Contact Us</a>
+               <a href="#">Contact Us</a>
             </li>
-            <button className="login-btn">Log In</button>
+            {/* <a href="/Login">Log in</a> */}
+            <button onClick={handleLogin}>Log in</button>
           </ul>
         </nav>
       </header>
 
       <div className="welcome-section">
+      <div class="main-wrapper">
         <section className="main-section">
           <div className="hero-content">
             <h2>Welcome to Your Fitness Journey</h2>
@@ -31,6 +38,7 @@ const LandingPage = () => {
             <button>Start Tracking</button>
           </div>
         </section>
+        </div>
       </div>
 
       <div className="image-section">
