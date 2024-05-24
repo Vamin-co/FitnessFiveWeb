@@ -2,7 +2,7 @@ import React from 'react';
 import "../CSS/Dashboard.css";
 import VandanPhoto from "../Images/Vandan_Profile.jpeg";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faDumbbell, faEnvelope, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faDumbbell, faEnvelope, faQuestionCircle, faBullseye, faAppleAlt, faCog, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'; // Importing Recharts components
 
 const data = [
@@ -57,6 +57,73 @@ const Dashboard = () => {
                     <Line type="monotone" dataKey="steps" stroke="#ff6b6b" dot={{ r: 6 }} activeDot={{ r: 8 }} />
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="cards-container">
+          <div className="card">
+            <h3>Cycling Hero</h3>
+            <p>10 km / week</p>
+            <div className="progress-bar">
+              <span style={{ width: '55%' }}></span>
+            </div>
+            <p>Progress: 55%</p>
+            <p>Target: 50km</p>
+          </div>
+          <div className="card">
+            <h3>Daily Running</h3>
+            <p>5 km / week</p>
+            <div className="progress-bar">
+              <span style={{ width: '75%' }}></span>
+            </div>
+            <p>Progress: 75%</p>
+            <p>Target: 7km / week</p>
+          </div>
+          <div className="card">
+            <h3>Daily Steps</h3>
+            <p>10000 steps / week</p>
+            <div className="progress-bar">
+              <span style={{ width: '95%' }}></span>
+            </div>
+            <p>Progress: 95%</p>
+            <p>Target: 12000 / week</p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="right-sidebar">
+        <div className="profile-section">
+          <img src={VandanPhoto} alt="Profile" className="profile-photo" />
+          <div className="profile-info">
+            <h4>Vandin Amin</h4>
+            <p>Joined 4 months ago</p>
+          </div>
+        </div>
+        <div className="navigation-section">
+          <div className="nav-item">
+            <FontAwesomeIcon icon={faBullseye} />
+            <span>Goals</span>
+            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+          </div>
+          <div className="nav-item">
+            <FontAwesomeIcon icon={faAppleAlt} />
+            <span>Diet</span>
+            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+          </div>
+          <div className="nav-item">
+            <FontAwesomeIcon icon={faCog} />
+            <span>Settings</span>
+            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+          </div>
+        </div>
+        <div className="goal-section">
+          <h4>Weight loss Goal</h4>
+          <p>Loss: 5kg / Month</p>
+          <div className="goal-progress">
+            <div className="progress-circle">
+              <div className="circle-background">
+                <div className="circle-progress"></div>
               </div>
             </div>
           </div>
