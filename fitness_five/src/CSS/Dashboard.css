@@ -21,121 +21,362 @@ body {
 }
 
 .sidebar {
-    width: 100px;
-    height: calc(100vh - 10px); /* Subtract padding from full viewport height */
-    max-height: 900px; /* MacBook Pro height */
-    background: linear-gradient(180deg, #6D63FF 0%, #3B32C0 100%);
-    border-radius: 5px;
-    position: fixed; 
-    margin-left: 10px;
-    top: 5px;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 20px;
-    padding-bottom: 10px; /* Add padding to the bottom */
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
-  }
-  
-  .sidebar-icon {
-    width: 64px;
-    height: 64px;
-    margin: 20px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-  }
-  .profile-photo {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    object-fit: cover; /* Ensures the image fits within the circle */
-  }
-  
-  .top-icon {
-    margin-top: 40px;
-  }
-  
-  .middle-icon {
-    background: white;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    color: #6D63FF; /* Change color to match the background */
-  }
-  
-  .bottom-icon {
-    margin-top: auto;
-    margin-bottom: 40px;
-  }
-
-  .main-content {
-    display: grid;
-    grid-template-columns: 500px 0.5fr; /* 80px for the sidebar, remaining for the content */
-    grid-template-rows: auto; /* Adjust row height based on content */
-    gap: 10px; /* Gap between sidebar and content */
-    padding: 20px;
-    height: 50vh; /* Full height */
-  }
-.activity-section {
-  width: 100%;
-  max-width: 500px;
+  width: 100px;
+  height: calc(100vh - 10px); /* Subtract padding from full viewport height */
+  max-height: 900px; /* MacBook Pro height */
   background: linear-gradient(180deg, #6D63FF 0%, #3B32C0 100%);
-  border-radius: 10px;
-  margin-left: 10px; /* Adjust this value to reduce the gap */
-  margin-top: 5px;
-  padding: 20px;
-  margin-left: 130px;
-  color: #fff;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  position: fixed; 
+  margin-left: 10px;
+  top: 5px;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  padding-bottom: 10px; /* Add padding to the bottom */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
 
-  
-  .activity-graph-container {
-    width: 100%;
-  }
-  
-  .activity-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .activity-header h3 {
-    margin: 0;
-  }
-  
-  .timeframe-selector {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    color: #fff;
-    cursor: pointer;
-  }
-  
-  .activity-graph-container {
-    width: 100%;
-  }
-  
-  .activity-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .activity-header h3 {
-    margin: 0;
-  }
-  
-  .timeframe-selector {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    color: #fff;
-    cursor: pointer;
-  }
+.sidebar-icon {
+  width: 64px;
+  height: 64px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: all 0.3s ease; /* Smooth transition for size and color changes */
+}
+
+.sidebar-icon.active {
+  background: white; /* White background for active icon */
+  transform: scale(1.2); /* Increase size */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+/* Hover effect for sidebar icons */
+.sidebar-icon:hover {
+  background: rgba(255, 255, 255, 0.4); /* Change background on hover */
+  transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+
+.bottom-icon {
+  margin-top: auto;
+}
+
+.top-icon {
+  margin-top: 40px;
+}
+
+
+.bottom-icon {
+  margin-top: auto;
+  margin-bottom: 40px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 120px;
+  padding: 20px;
+  height: 100vh; /* Full height */
+  width: calc(100% - 120px - 250px); /* Adjust the width to account for the sidebar and right sidebar */
+}
+
+.activity-section {
+  width: 100%;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background-color: #f2f2f2;
+}
+
+.activity-graph-container {
+  width: 100%;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.activity-header h3 {
+  margin: 0;
+}
+
+.timeframe-selector {
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12vh;
+}
+
+.card {
+  width: 30%;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.card p {
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background: #6D63FF;
+}
+
+.right-sidebar {
+  width: 250px;
+  height: 100vh; /* Full viewport height */
+  background: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #eaeaea;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info h4 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.profile-info p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #888;
+}
+
+.navigation-section {
+  width: 100%;
+  margin-bottom: 20px;
+  margin-top: 20vh
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: background 0.3s ease;
+}
+
+.nav-item:hover {
+  background: #f0f0f0;
+}
+
+.nav-item > *:not(:last-child) {
+  margin-right: 10px; /* Adjust the spacing as needed */
+}
+
+.nav-icon {
+  color: #6D63FF;
+  font-size: 1.2em; /* Adjust icon size if needed */
+}
+
+.nav-item span {
+  font-size: 1em;
+  color: #333;
+  flex-grow: 1;
+}
+
+.arrow-icon {
+  font-size: 1em;
+  color: #888;
+}
+
+.goal-section {
+  width: 100%;
+  margin-top: auto;
+  text-align: center;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.goal-section h4 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.goal-section p {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.goal-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 150px; /* Adjust width for better appearance */
+  height: 150px; /* Adjust height for better appearance */
+}
+
+.progress-circle {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.circle-background {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #f1f1f1;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.circle-progress {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #6D63FF;
+  clip: rect(0px, 75px, 150px, 0px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(180deg); /* Adjust the rotation angle to show progress */
+  transform-origin: 75px 75px; /* Set the origin to the center of the circle */
+}
+
+.progress-mask {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #f1f1f1;
+  clip: rect(0px, 75px, 150px, 0px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(90deg); /* Adjust the rotation angle to show progress */
+  transform-origin: 75px 75px; /* Set the origin to the center of the circle */
+}
+
+.profile-section {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+  top: 70px; /* Adjust to match your design */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 20px;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dropdown-profile-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.dropdown-info h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.dropdown-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 5px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-menu button:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-menu button svg {
+  margin-right: 10px;
+}

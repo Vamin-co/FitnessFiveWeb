@@ -1,7 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../CSS/Login.css';
 
 const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:4000/login', { username, password });
+            const { token } = response.data;
+            localStorage.setItem('token', token); // Store JWT in localStorage
+            navigate('/dashboard'); // Redirect to the dashboard page
+        } catch (err) {
+            setError('Invalid username or password');
+        }
+    };
+
     return (
         <div className="login-page">
             <div className="container">
@@ -13,17 +32,32 @@ const Login = () => {
                         <h1>Log in</h1>
                         <p>Don't have an account? <a href="#">Sign up</a></p>
                     </div>
-                    <form className="login-form">
+                    <form className="login-form" onSubmit={handleSubmit}>
                         <div className="input-group">
-                            <input type="text" placeholder="Username" required aria-label="Username" />
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                                aria-label="Username"
+                            />
                         </div>
                         <div className="input-group">
-                            <input type="password" placeholder="Password" required aria-label="Password" />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                aria-label="Password"
+                            />
                         </div>
                         <div className="input-group">
                             <button type="submit">Continue</button>
                         </div>
                     </form>
+                    {error && <p className="error">{error}</p>}
                     <p className="terms">By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
                 </main>
             </div>
