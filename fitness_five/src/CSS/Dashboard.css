@@ -47,24 +47,30 @@ body {
   align-items: center;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
+  transition: all 0.3s ease; /* Smooth transition for size and color changes */
 }
 
-.profile-photo {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover; /* Ensures the image fits within the circle */
+.sidebar-icon.active {
+  background: white; /* White background for active icon */
+  transform: scale(1.2); /* Increase size */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+/* Hover effect for sidebar icons */
+.sidebar-icon:hover {
+  background: rgba(255, 255, 255, 0.4); /* Change background on hover */
+  transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+
+.bottom-icon {
+  margin-top: auto;
 }
 
 .top-icon {
   margin-top: 40px;
 }
 
-.middle-icon {
-  background: white;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  color: #6D63FF; /* Change color to match the background */
-}
 
 .bottom-icon {
   margin-top: auto;
@@ -82,11 +88,10 @@ body {
 
 .activity-section {
   width: 100%;
-  background: linear-gradient(180deg, #6D63FF 0%, #3B32C0 100%);
   border-radius: 10px;
   padding: 20px;
-  color: #fff;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background-color: #f2f2f2;
 }
 
 .activity-graph-container {
@@ -105,11 +110,9 @@ body {
 }
 
 .timeframe-selector {
-  background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 5px;
   padding: 5px 10px;
-  color: #fff;
   cursor: pointer;
 }
 
@@ -306,4 +309,74 @@ body {
   left: 0;
   transform: rotate(90deg); /* Adjust the rotation angle to show progress */
   transform-origin: 75px 75px; /* Set the origin to the center of the circle */
+}
+
+.profile-section {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.dropdown-menu {
+  display: block;
+  position: absolute;
+  top: 70px; /* Adjust to match your design */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  padding: 20px;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dropdown-profile-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.dropdown-info h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.dropdown-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 5px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropdown-menu button:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-menu button svg {
+  margin-right: 10px;
 }

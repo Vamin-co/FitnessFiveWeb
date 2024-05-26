@@ -11,6 +11,7 @@ import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import SignUp from './components/SignUp';
+import Workout from './components/Workout';
 //import ErrorPage404 from './components/ErrorPage404';
 
 const router = createBrowserRouter([
@@ -45,11 +46,11 @@ const router = createBrowserRouter([
   {
     path: "/landingpage",
     element: <LandingPage />,
+  },
+  {
+    path: "/workout",
+    element: <Workout />,
   }
-  // {
-  //   path: "/*",
-  //   element: <ErrorPage404 />,
-  // }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
