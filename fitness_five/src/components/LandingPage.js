@@ -1,43 +1,90 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../CSS/LandingPage.css';
 import fitnessImage from '../Images/fitnessImage.jpg'; // Adjust the path as necessary
 import user1Image from '../Images/avatar1.jpg'; // Adjust the path as necessary
 import user2Image from '../Images/avatar2.jpg'; // Adjust the path as necessary
 import user3Image from '../Images/avatar3.jpg'; // Adjust the path as necessary
+import axios from 'axios';
 
 const LandingPage = () => {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await axios.get('http://localhost:4000/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setUser(response.data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const handleLogin = () => {
-    // Add the logic for login here
-    window.location.href = '/Login';
+    navigate('/Login');
+  };
+
+  const handleStartTracking = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/Login');
+    }
   };
 
   return (
     <div>
       <header className="header">
-        <h1>FitnessFive</h1>
+        <Link to="/" className="site-title">
+          <h1>FitnessFive</h1>
+        </Link>
         <nav>
           <ul className="nav-links">
             <li>
               <a href="#">About</a>
             </li>
             <li>
-               <a href="#">Contact Us</a>
+              <a href="#">Contact Us</a>
             </li>
-            {/* <a href="/Login">Log in</a> */}
-            <button onClick={handleLogin}>Log in</button>
+            {user ? (
+              <Link to="/dashboard">
+                <img
+                  src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+                  alt="Profile"
+                  className="profile-photo-header"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'default-image-url'; // Provide a default image URL here
+                  }}
+                />
+              </Link>
+            ) : (
+              <button onClick={handleLogin}>Log in</button>
+            )}
           </ul>
         </nav>
       </header>
 
       <div className="welcome-section">
-      <div class="main-wrapper">
-        <section className="main-section">
-          <div className="hero-content">
-            <h2>Welcome to Your Fitness Journey</h2>
-            <p>Track, Compete, and Celebrate Every Step of Your Progress</p>
-            <button>Start Tracking</button>
-          </div>
-        </section>
+        <div className="main-wrapper">
+          <section className="main-section">
+            <div className="hero-content">
+              <h2>Welcome to Your Fitness Journey</h2>
+              <p>Track, Compete, and Celebrate Every Step of Your Progress</p>
+              <button onClick={handleStartTracking}>Start Tracking</button>
+            </div>
+          </section>
         </div>
       </div>
 

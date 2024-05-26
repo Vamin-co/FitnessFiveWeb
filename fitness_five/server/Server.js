@@ -1,27 +1,23 @@
-/**
- * @fileoverview This script sets up an Express server with CORS and JSON parsing middleware,
- * establishes a MySQL database connection, and handles user registration and basic messaging.
- */
-
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 const bcrypt = require('bcryptjs');
-const port = 4000;
+const jwt = require('jsonwebtoken');
 const sanitizeHtml = require('sanitize-html');
 const multer = require('multer');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs'); // Add this line to import the fs module
+const fs = require('fs');
+
 const app = express();
-// Use express built-in middleware to parse JSON bodies
+const port = 4000;
+
 app.use(express.json());
+app.use(cors());
 
 
 
-/**
- * Connects to the MySQL database using predefined credentials.
- */
+
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -30,9 +26,6 @@ const db = mysql.createConnection({
     port: 3306
 });
 
-/**
- * Opens a connection to the database and logs connection status.
- */
 db.connect(err => {
     if (err) {
         console.error('Error connecting to the database: ' + err.stack);
@@ -41,43 +34,40 @@ db.connect(err => {
     console.log('Connected to database as id ' + db.threadId);
 });
 
-/**
- * Middleware to log and send responses for any server errors.
- */
+const SECRET_KEY = 'your_secret_key'; // Define a secret key for signing JWTs
+
+// Middleware to log and send responses for any server errors.
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
 
-app.use(express.json());
-app.use(cors());
-
 /**
  * Registers a new user with hashed password storage.
- * @param {Request} req - Express HTTP Request
- * @param {Response} res - Express HTTP Response
  */
 app.post('/register', async (req, res) => {
-    const { firstName, middleInitial, lastName, birthDate, weight, height, username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 8);
-    const query = 'INSERT INTO Users (FirstName, MiddleInitial, LastName, BirthDate, Weight, Height, Username, Email, Password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    try {
+        const { firstName, middleInitial, lastName, birthDate, weight, height, username, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 8);
+        const query = 'INSERT INTO Users (FirstName, MiddleInitial, LastName, BirthDate, Weight, Height, Username, Email, Password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    db.query(query, [firstName, middleInitial, lastName, birthDate, weight, height, username, email, hashedPassword], (err, result) => {
-        if (err) {
-            console.error('Error registering new user:', err);
-            res.status(500).send('Error registering new user.');
-            return;
-        }
-        console.log('User registered successfully.');
-        res.status(201).send('User registered.');
-    });
+        db.query(query, [firstName, middleInitial, lastName, birthDate, weight, height, username, email, hashedPassword], (err, result) => {
+            if (err) {
+                console.error('Error registering new user:', err);
+                res.status(500).send('Error registering new user.');
+                return;
+            }
+            console.log('User registered successfully.');
+            res.status(201).send('User registered.');
+        });
+    } catch (error) {
+        console.error('Error in /register route:', error);
+        res.status(500).send('Internal server error.');
+    }
 });
 
 /**
- *  * API endpoint for user sign-in. Validates credentials and returns appropriate response messages.
- * 
- * @param {express.Request} req - Express HTTP request, expected to contain username and password.
- * @param {express.Response} res - Express HTTP response, returns various status messages based on authentication outcome.
+ * API endpoint for user sign-in. Validates credentials and returns appropriate response messages.
  */
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -94,6 +84,7 @@ app.post('/login', (req, res) => {
 
     db.query(query, [username], (err, results) => {
         if (err) {
+            console.error('Error fetching user:', err);
             return res.status(500).send('Error fetching user');
         }
         if (results.length === 0) {
@@ -103,32 +94,68 @@ app.post('/login', (req, res) => {
         const user = results[0];
         bcrypt.compare(password, user.Password, (err, isMatch) => {
             if (err) {
+                console.error('Error comparing passwords:', err);
                 return res.status(500).send('Error comparing passwords');
             }
             if (!isMatch) {
                 return res.status(401).send('Invalid credentials');
             }
 
+            const token = jwt.sign({ userID: user.UserID }, SECRET_KEY, { expiresIn: '1h' }); // Generate JWT
+
+            console.log('User logged in successfully:', username);
             res.status(200).json({
                 UserID: user.UserID,
                 FirstName: user.FirstName,
                 LastName: user.LastName,
                 Email: user.Email,
-                ProfilePhotoURL: user.ProfilePhotoURL
+                ProfilePhotoURL: user.ProfilePhotoURL,
+                token // Return JWT
             });
         });
     });
 });
 
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
- 
+    if (!token) {
+        console.warn('No token provided. Unauthorized access attempt.');
+        return res.status(401).send('Unauthorized'); // Unauthorized
+    }
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) {
+            console.error('Token verification failed:', err);
+            return res.status(403).send('Forbidden'); // Forbidden
+        }
+        req.user = user;
+        next();
+    });
+};
+
+app.get('/profile', authenticateToken, (req, res) => {
+    const userID = req.user.userID;
+    const query = 'SELECT UserID, FirstName, LastName, Email, ProfilePhotoURL FROM Users WHERE UserID = ?';
+
+    db.query(query, [userID], (err, results) => {
+        if (err) {
+            console.error(`Error fetching user profile for UserID ${userID}:`, err);
+            return res.status(500).send('Error fetching user profile');
+        }
+        if (results.length === 0) {
+            console.warn(`User profile not found for UserID ${userID}`);
+            return res.status(404).send('User not found');
+        }
+
+        console.log(`User profile fetched successfully for UserID ${userID}`);
+        res.json(results[0]);
+    });
+});
+
 /**
  * Handles POST requests to the '/messages' endpoint for submitting contact messages.
- * This route sanitizes input to remove HTML, checks for the presence of URLs in the message,
- * and inserts the sanitized message into the database if no URLs are found.
- *
- * @param {express.Request} req The request object, containing 'email' and 'message' in the body.
- * @param {express.Response} res The response object used to send back the HTTP response.
  */
 app.post('/messages', (req, res) => {
     let { email, message } = req.body;
@@ -150,6 +177,7 @@ app.post('/messages', (req, res) => {
     const userQuery = 'SELECT UserID FROM Users WHERE Email = ?';
     db.query(userQuery, [email], (err, result) => {
         if (err) {
+            console.error('Error fetching user:', err);
             return res.status(500).send('Database error while fetching user.');
         }
         
@@ -161,8 +189,10 @@ app.post('/messages', (req, res) => {
         const query = 'INSERT INTO ContactMessages (UserID, Email, Message) VALUES (?, ?, ?)';
         db.query(query, [userID, email, message], (err, result) => {
             if (err) {
+                console.error('Error inserting message:', err);
                 return res.status(500).send('Failed to insert message.');
             }
+            console.log('Message received successfully.');
             res.send('Message received successfully.');
         });
     });
@@ -170,12 +200,15 @@ app.post('/messages', (req, res) => {
 
 // Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, 'uploads');
+console.log(`Static files will be served from: ${uploadDir}`);
+
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
     console.log(`Created directory: ${uploadDir}`);
 } else {
     console.log(`Directory already exists: ${uploadDir}`);
 }
+
 
 /// Configure multer storage
 const storage = multer.diskStorage({
@@ -188,7 +221,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png'];
+    const allowedTypes = ['image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.mimetype)) {
         const error = new Error("Invalid file type");
         error.status = 400;
@@ -224,6 +257,7 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
 
     db.query(query, [username], (err, results) => {
         if (err) {
+            console.error('Error fetching user:', err);
             return res.status(500).send('Error fetching user');
         }
         if (results.length === 0) {
@@ -233,6 +267,7 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
         const user = results[0];
         bcrypt.compare(password, user.Password, (err, isMatch) => {
             if (err) {
+                console.error('Error comparing passwords:', err);
                 return res.status(500).send('Error comparing passwords');
             }
             if (!isMatch) {
@@ -249,6 +284,7 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
                     console.error('Database update error:', err);
                     return res.status(500).send('Server error');
                 }
+                console.log('Profile photo uploaded and URL saved in database.');
                 res.send('Profile photo uploaded and URL saved in database.');
             });
         });
@@ -256,25 +292,6 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
 });
 
 
-// Endpoint to retrieve user profile
-app.get('/profile/:id', (req, res) => {
-    const id = req.params.id;
-    const query = `
-        SELECT u.*, p.ProfilePhotoURL 
-        FROM Users u 
-        LEFT JOIN UserProfilePhotos p ON u.UserID = p.UserID 
-        WHERE u.UserID = ?
-    `;
-
-    db.query(query, [id], (err, result) => {
-        if (err) throw err;
-        if (result.length > 0) {
-            res.json(result[0]);
-        } else {
-            res.status(404).send('Profile not found.');
-        }
-    });
-});
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(uploadDir));

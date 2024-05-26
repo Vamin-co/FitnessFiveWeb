@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import "../CSS/Dashboard.css";
-import VandanPhoto from "../Images/Vandan_Profile.jpeg";
+import { useNavigate, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faDumbbell, faEnvelope, faQuestionCircle, faBullseye, faAppleAlt, faCog, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'; // Importing Recharts components
+import { faHome, faDumbbell, faEnvelope, faQuestionCircle, faBullseye, faAppleAlt, faCog, faArrowRight, faUser, faSignOutAlt, faUserEdit, faCogs } from '@fortawesome/free-solid-svg-icons';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import axios from 'axios';
 
 const data = [
   { day: 'Sun', steps: 4000 },
@@ -16,26 +17,84 @@ const data = [
 ];
 
 const Dashboard = () => {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null); // Reference for the dropdown menu
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No token found, please log in.');
+        navigate('/'); // Redirect to login if no token is present
+        return;
+      }
+      
+      try {
+        const response = await axios.get('http://localhost:4000/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log('Fetched user data:', response.data); // Debugging line
+        setUser(response.data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Error fetching user data, please log in again.');
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="dashboard-container">
       <div className="sidebar">
-        <div className="sidebar-icon top-icon">
-          <img src={VandanPhoto} alt="Profile" className="profile-photo" />
-        </div>
-        <div className="sidebar-icon middle-icon">
+        <NavLink to="/" className={({ isActive }) => "sidebar-icon middle-icon" + (isActive ? " active" : "")}>
           <FontAwesomeIcon icon={faHome} />
-        </div>
-        <div className="sidebar-icon">
+        </NavLink>
+        <NavLink to="/dashboard" className={({ isActive }) => "sidebar-icon" + (isActive ? " active" : "")}>
           <FontAwesomeIcon icon={faDumbbell} />
-        </div>
-        <div className="sidebar-icon">
+        </NavLink>
+        <NavLink to="/mailing" className={({ isActive }) => "sidebar-icon" + (isActive ? " active" : "")}>
           <FontAwesomeIcon icon={faEnvelope} />
-        </div>
+        </NavLink>
         <div className="sidebar-icon bottom-icon">
           <FontAwesomeIcon icon={faQuestionCircle} />
-        </div>
       </div>
-      
+      </div>
       <div className="main-content">
         <div className="activity-section">
           <div className="activity-graph-container">
@@ -63,42 +122,58 @@ const Dashboard = () => {
         </div>
         <div className="cards-container">
           <div className="card">
-            <h3>Cycling Hero</h3>
-            <p>10 km / week</p>
+            <h3>Workout Plan</h3>
+            <p>4/5 Workouts completed</p>
             <div className="progress-bar">
-              <span style={{ width: '55%' }}></span>
+              <span style={{ width: '80%' }}></span>
             </div>
-            <p>Progress: 55%</p>
-            <p>Target: 50km</p>
+            <p>Progress: 80%</p>
+            <p>Target: Complete all workouts</p>
           </div>
           <div className="card">
-            <h3>Daily Running</h3>
-            <p>5 km / week</p>
+            <h3>Nutrition Plan</h3>
+            <p>1800/2000 Calories consumed</p>
             <div className="progress-bar">
-              <span style={{ width: '75%' }}></span>
+              <span style={{ width: '90%' }}></span>
             </div>
-            <p>Progress: 75%</p>
-            <p>Target: 7km / week</p>
+            <p>Progress: 90%</p>
+            <p>Target: Stay within 2000 Calories</p>
           </div>
           <div className="card">
-            <h3>Daily Steps</h3>
-            <p>10000 steps / week</p>
+            <h3>Personal Bests</h3>
+            <p>Squat: 150kg (new record)</p>
             <div className="progress-bar">
-              <span style={{ width: '95%' }}></span>
+              <span style={{ width: '100%' }}></span>
             </div>
-            <p>Progress: 95%</p>
-            <p>Target: 12000 / week</p>
+            <p>Progress: 100%</p>
+            <p>Target: Beat personal bests</p>
           </div>
         </div>
       </div>
       
       <div className="right-sidebar">
-        <div className="profile-section">
-          <img src={VandanPhoto} alt="Profile" className="profile-photo" />
+        <div className="profile-section" onClick={toggleDropdown} ref={dropdownRef}>
+          <img
+            src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+            alt="Profile"
+            className="profile-photo"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'default-image-url'; // Provide a default image URL here
+            }}
+          />
           <div className="profile-info">
-            <h4>Vandin Amin</h4>
-            <p>Joined 4 months ago</p>
+            <h4>{user.FirstName} {user.LastName}</h4>
           </div>
+          {dropdownVisible && (
+            <div className="dropdown-menu">
+              <button onClick={() => navigate('/profile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
+              <button onClick={() => navigate('/edit-profile')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
+              <button onClick={() => navigate('/settings')}><FontAwesomeIcon icon={faCogs} /> Settings</button>
+              <button onClick={() => navigate('/help')}><FontAwesomeIcon icon={faQuestionCircle} /> Help</button>
+              <button onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> Sign Out</button>
+            </div>
+          )}
         </div>
         <div className="navigation-section">
           <div className="nav-item">

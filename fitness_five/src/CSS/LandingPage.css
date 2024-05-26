@@ -3,13 +3,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  /* background-color: #f8f8f8; */
 }
 
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
-  
 }
 
 /* Header */
@@ -24,7 +22,6 @@ body {
   left: 0;
   right: 0;
   z-index: 999;
-  
 }
 
 .header button {
@@ -66,6 +63,15 @@ body {
   color: #666;
 }
 
+/* Profile Photo Header */
+.profile-photo-header {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
 /* Wrapper to add colored margin */
 .main-wrapper {
   background-color: #f8f8f8;
@@ -73,24 +79,20 @@ body {
 }
 
 .main-section {
-  /* background-color: #f8f8f8; */
   text-align: center;
   margin-top: 0; /* Reset margin as it's handled by the wrapper */
-  /* padding: 20px; Adjust padding to create space inside the section */
 }
 
 /* Hero Section */
 .hero-section {
-  display: flex; /* Enables Flexbox layout */
-  flex-direction: column; /* Aligns items vertically */
-  justify-content: center; /* Centers items vertically */
-  align-items: center; /* Centers items horizontally */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 100px 50px;
   background-color: #f8f8f8;
   text-align: center;
-  /* margin-top: 80px;  To create space for the fixed header */
 }
-
 
 .hero-content {
   max-width: 800px;
@@ -98,12 +100,12 @@ body {
 }
 
 .hero-content h2 {
-  font-size: 36px; /*good*/
+  font-size: 36px;
   margin-bottom: 20px;
 }
 
 .hero-content p {
-  margin-bottom: 30px; /*good*/
+  margin-bottom: 30px;
 }
 
 .hero-content button {
@@ -153,7 +155,6 @@ body {
   height: 100px;
   border-radius: 50%;
 }
-
 
 /* Footer */
 .footer {
@@ -221,4 +222,14 @@ body {
   background-color: #f8f8f8;
   text-align: center;
   margin-top: 80px; /* To create space for the fixed header */
+}
+
+.header .site-title {
+  text-decoration: none;
+  color: inherit;
+}
+
+.header .site-title h1 {
+  margin: 0;
+  padding: 0;
 }
