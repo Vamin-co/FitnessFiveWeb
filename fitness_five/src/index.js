@@ -12,7 +12,11 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import SignUp from './components/SignUp';
 import Workout from './components/Workout';
-//import ErrorPage404 from './components/ErrorPage404';
+import Error404 from './components/Error404';
+import Settings from './components/Settings';
+import Myprofile from './components/Myprofile';
+import Help from './components/Help';
+
 
 const router = createBrowserRouter([
   {
@@ -36,10 +40,6 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
     path: "/signup",
     element: <SignUp />,
   },
@@ -50,6 +50,22 @@ const router = createBrowserRouter([
   {
     path: "/workout",
     element: <Workout />,
+  },
+  {
+    path: "/myprofile",
+    element: <Myprofile />,
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
+  },
+  {
+    path: "/help",
+    element: <Help />,
+  },
+  {
+    path: "*", // Wildcard route for handling 404 errors
+    element: <Error404 />,
   }
 ]);
 
@@ -60,7 +76,4 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
