@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import styles from "../CSS/Workout.module.css";
 import axios from 'axios';
 import '../CSS/Login.css';
 
@@ -25,7 +26,9 @@ const Login = () => {
         <div className="login-page">
             <div className="container">
                 <header className="header">
-                    <div className="logo">FitnessFive</div>
+                <Link to="/" className='title'>
+                    <h1>FitnessFive</h1>
+                </Link>
                 </header>
                 <main className="login-box">
                     <div className="login-header">

@@ -7,9 +7,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import axios from 'axios';
 
 const data = [
-  { day: 'Sun', steps: 4000 },
-  { day: 'Mon', steps: 3000 },
-  { day: 'Tue', steps: 5000 },
+  { day: 'Sun', steps: 1000 },
+  { day: 'Mon', steps: 2000 },
+  { day: 'Tue', steps: 4000 },
   { day: 'Wed', steps: 9245 },
   { day: 'Thu', steps: 4800 },
   { day: 'Fri', steps: 6200 },
@@ -167,8 +167,8 @@ const Dashboard = () => {
           </div>
           {dropdownVisible && (
             <div className="dropdown-menu">
-              <button onClick={() => navigate('/profile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
-              <button onClick={() => navigate('/edit-profile')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
+              <button onClick={() => navigate('/myprofile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
+              <button onClick={() => navigate('/workout')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
               <button onClick={() => navigate('/settings')}><FontAwesomeIcon icon={faCogs} /> Settings</button>
               <button onClick={() => navigate('/help')}><FontAwesomeIcon icon={faQuestionCircle} /> Help</button>
               <button onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> Sign Out</button>
