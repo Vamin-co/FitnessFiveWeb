@@ -16,6 +16,7 @@ import Error404 from './components/Error404';
 import Settings from './components/Settings';
 import Myprofile from './components/Myprofile';
 import Help from './components/Help';
+import About from './components/About';
 
 
 const router = createBrowserRouter([
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
   {
     path: "/help",
     element: <Help />,
+  },
+  {
+    path: "/about",
+    element: <About />,
   },
   {
     path: "*", // Wildcard route for handling 404 errors

@@ -24,7 +24,10 @@ body {
   width: 100px;
   height: calc(100vh - 10px); /* Subtract padding from full viewport height */
   max-height: 900px; /* MacBook Pro height */
-  background: linear-gradient(180deg, #6D63FF 0%, #3B32C0 100%);
+  /* background: linear-gradient(180deg, #6D63FF 0%, #3B32C0 100%); */
+  background: linear-gradient(180deg, #b0b0b0 0%, #f2f2f2 100%);
+
+
   border-radius: 5px;
   position: fixed; 
   margin-left: 10px;
@@ -51,14 +54,17 @@ body {
 }
 
 .sidebar-icon.active {
-  background: white; /* White background for active icon */
+  background: lightgray; /* White background for active icon */
   transform: scale(1.2); /* Increase size */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+.sidebar-icon svg{
+  fill: #6D63FF;
 }
 
 /* Hover effect for sidebar icons */
 .sidebar-icon:hover {
-  background: rgba(255, 255, 255, 0.4); /* Change background on hover */
+  background:lightgray; /* Change background on hover */
   transform: scale(1.1); /* Slightly increase size on hover */
 }
 
