@@ -9,13 +9,18 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import axios from 'axios';
 
 const data = [
-  { day: 'Sun', steps: 1000 },
-  { day: 'Mon', steps: 2000 },
-  { day: 'Tue', steps: 4000 },
-  { day: 'Wed', steps: 9245 },
-  { day: 'Thu', steps: 4800 },
-  { day: 'Fri', steps: 6200 },
-  { day: 'Sat', steps: 7300 },
+  { month: 'Jan', weight: 154.32 }, // 70 kg
+  { month: 'Feb', weight: 152.12 }, // 69 kg
+  { month: 'Mar', weight: 151.02 }, // 68.5 kg
+  { month: 'Apr', weight: 147.71 }, // 67 kg
+  { month: 'May', weight: 146.61 }, // 66.5 kg
+  { month: 'Jun', weight: 144.40 }, // 65.5 kg
+  { month: 'Jul', weight: 141.09 }, // 64 kg
+  { month: 'Aug', weight: 139.94 }, // 63.5 kg
+  { month: 'Sep', weight: 137.67 }, // 62.5 kg
+  { month: 'Oct', weight: 134.48 }, // 61 kg
+  { month: 'Nov', weight: 133.37 }, // 60.5 kg
+  { month: 'Dec', weight: 132.28 }, // 60 kg
 ];
 
 const Dashboard = () => {
@@ -131,10 +136,10 @@ const Dashboard = () => {
         <div className="activity-section">
           <div className="activity-graph-container">
             <div className="activity-header">
-              <h3>Activity</h3>
+              <h3>Weight Progress</h3>
               <select className="timeframe-selector">
-                <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
               </select>
             </div>
             <div className="chart-background">
@@ -142,10 +147,10 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
+                    <XAxis dataKey="month" />
+                    <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="steps" stroke="#ff6b6b" dot={{ r: 6 }} activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="weight" stroke="#ff6b6b" dot={{ r: 6 }} activeDot={{ r: 8 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -216,17 +221,6 @@ const Dashboard = () => {
             <FontAwesomeIcon icon={faCog} />
             <span>Settings</span>
             <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
-          </div>
-        </div>
-        <div className="goal-section">
-          <h4>Weight loss Goal</h4>
-          <p>Loss: 5kg / Month</p>
-          <div className="goal-progress">
-            <div className="progress-circle">
-              <div className="circle-background">
-                <div className="circle-progress"></div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

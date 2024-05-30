@@ -133,10 +133,10 @@ const Myprofile = () => {
       <div className="profile-header">
         <h1>Welcome, {user.firstName}</h1>
         <p>Tue, 07 June 2022</p>
-        <img className="user-icon" src="https://via.placeholder.com/52x52" alt="User Icon" />
+        <img className="user-icon" src="https://via.placeholder.com/52" alt="User Icon" />
       </div>
       <div className="profile-card">
-        <img className="profile-banner" src="https://via.placeholder.com/1282x100" alt="Profile Banner" />
+        <img className="profile-banner" src="https://via.placeholder.com/100x200" alt="Profile Banner" />
         <div className="profile-details">
           <div 
             className="profile-photo-user" 
