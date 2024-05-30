@@ -7,6 +7,11 @@ import contactUsImage from '../Images/contactus.jpg';
 const ContactUs = () => {
   const [user, setUser] = useState(null);
   const [profileBgColor, setProfileBgColor] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +27,6 @@ const ContactUs = () => {
         });
         setUser(response.data);
 
-        // Set a random background color for profile holder
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F39C12', '#8E44AD'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         setProfileBgColor(randomColor);
@@ -44,6 +48,19 @@ const ContactUs = () => {
     return `${firstInitial}${lastInitial}`;
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:4000/messages', {
+        email,
+        message,
+      });
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error('Error sending message:', err);
+    }
+  };
+
   return (
     <div className="contact-us-container">
       <header className="header">
@@ -52,7 +69,7 @@ const ContactUs = () => {
         </Link>
         <nav>
           <ul className="nav-links">
-          <li>
+            <li>
               <Link to="/about" className="nav-link">About</Link>
             </li>
             <li>
@@ -68,7 +85,7 @@ const ContactUs = () => {
                       className="profile-photo"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'default-image-url'; // Provide a default image URL here
+                        e.target.src = 'default-image-url';
                       }}
                     />
                   ) : (
@@ -89,32 +106,32 @@ const ContactUs = () => {
       </div>
 
       <div className="contact-us-form-container">
-        <form className="contact-us-form">
+        <form className="contact-us-form" onSubmit={handleSubmit}>
           <div className="contact-us-form-group">
             <label className="contact-us-label">First name</label>
-            <input type="text" className="contact-us-input" value="Jane" />
+            <input type="text" className="contact-us-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
           <div className="contact-us-form-group">
             <label className="contact-us-label">Last name</label>
-            <input type="text" className="contact-us-input" value="Smitherton" />
+            <input type="text" className="contact-us-input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </div>
           <div className="contact-us-form-group">
             <label className="contact-us-label">Email address</label>
-            <input type="email" className="contact-us-input" value="email@janesfakedomain.net" />
+            <input type="email" className="contact-us-input" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="contact-us-form-group">
             <label className="contact-us-label">Your message</label>
-            <textarea className="contact-us-textarea" placeholder="Enter your question or message"></textarea>
+            <textarea className="contact-us-textarea" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Enter your question or message"></textarea>
           </div>
-          <button type="submit" className="contact-us-submit-button">
-            <span className="contact-us-submit-text">Submit</span>
+          <button type="submit" className="contact-us-submit-button" disabled={isSubmitted}>
+            <span className="contact-us-submit-text">{isSubmitted ? 'Message Sent' : 'Submit'}</span>
           </button>
         </form>
-        <img className="contact-us-image" src={contactUsImage} alt="Contact Us" />      </div>
+        <img className="contact-us-image" src={contactUsImage} alt="Contact Us" />
+      </div>
 
       <footer className="footer">
         <ul className="footer-links">
-          
         </ul>
       </footer>
     </div>

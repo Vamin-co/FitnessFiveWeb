@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../CSS/About.css';
-import aboutUsImage from '../Images/aboutus.jpg'; // Adjust the path as necessary
+import aboutUsImage from '../Images/aboutphoto.jpg'; // Adjust the path as necessary
 import axios from 'axios';
 
 const About = () => {
