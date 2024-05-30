@@ -6,6 +6,8 @@ import user1Image from '../Images/avatar1.jpg'; // Adjust the path as necessary
 import user2Image from '../Images/avatar2.jpg'; // Adjust the path as necessary
 import user3Image from '../Images/avatar3.jpg'; // Adjust the path as necessary
 import axios from 'axios';
+import ContactUs from '../components/ContactUs.js';
+import About from '../components/About.js';
 
 const LandingPage = () => {
   const [user, setUser] = useState(null);
@@ -62,12 +64,12 @@ const LandingPage = () => {
           <h1>FitnessFive</h1>
         </Link>
         <nav>
-          <ul className="nav-links">
+            <ul className="nav-links">
             <li>
-              <a href="#">About</a>
+              <Link to="/about" className="nav-link">About</Link>
             </li>
             <li>
-              <a href="#">Contact Us</a>
+              <Link to="/contact" className="nav-link">Contact Us</Link>
             </li>
             {user ? (
               <Link to="/dashboard">
