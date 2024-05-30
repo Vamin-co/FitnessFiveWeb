@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useCards } from './CardContext';  // If in the same directory
+
 import "../CSS/Dashboard.css";
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -22,6 +24,8 @@ const Dashboard = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null); // Reference for the dropdown menu
+  const { cards, updateCard, removeCard } = useCards();
+  const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,6 +51,11 @@ const Dashboard = () => {
     };
 
     fetchUserData();
+
+    // Set a random background color for profile holder
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#F39C12', '#8E44AD'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setProfileBgColor(randomColor);
   }, [navigate]);
 
   useEffect(() => {
@@ -78,6 +87,29 @@ const Dashboard = () => {
   if (!user) {
     return <div>Loading...</div>;
   }
+
+  const calculateExerciseProgress = (exercises) => {
+    const progress = exercises.reduce((acc, cur) => {
+      const setsProgress = (cur.sets / cur.targetSets) * 100;
+      const repsProgress = (cur.reps / cur.targetReps) * 100;
+      return acc + (setsProgress + repsProgress) / 2; // Average progress of sets and reps
+    }, 0);
+    return progress / exercises.length; // Average progress of all exercises
+  };
+
+  const handleDelete = (id) => {
+    removeCard(id);
+  };
+
+  const handleEdit = (card) => {
+    navigate('/workout', { state: { card } });
+  };
+
+  const getInitials = (firstName, lastName) => {
+    const firstInitial = firstName ? firstName.charAt(0) : '';
+    const lastInitial = lastName ? lastName.charAt(0) : '';
+    return `${firstInitial}${lastInitial}`;
+  };
 
   return (
     <div className="dashboard-container">
@@ -121,47 +153,41 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="cards-container">
-          <div className="card">
-            <h3>Workout Plan</h3>
-            <p>4/5 Workouts completed</p>
-            <div className="progress-bar">
-              <span style={{ width: '80%' }}></span>
+          {cards.map(card => (
+            <div key={card.id} className="card">
+              <div className="card-actions">
+                <button onClick={() => handleEdit(card)} className="edit-button">Update</button>
+                <button onClick={() => handleDelete(card.id)} className="delete-button">Remove</button>
+              </div>
+              <h3>{card.title}</h3>
+              {card.exercises.map((ex, idx) => (
+                <p key={idx}>{ex.name} - {ex.sets}/{ex.targetSets} Sets, {ex.reps}/{ex.targetReps} Reps</p>
+              ))}
+              <div className="progress-bar">
+                <span style={{ width: `${calculateExerciseProgress(card.exercises)}%` }}></span>
+              </div>
+              <p>Progress: {calculateExerciseProgress(card.exercises).toFixed(2)}%</p>
             </div>
-            <p>Progress: 80%</p>
-            <p>Target: Complete all workouts</p>
-          </div>
-          <div className="card">
-            <h3>Nutrition Plan</h3>
-            <p>1800/2000 Calories consumed</p>
-            <div className="progress-bar">
-              <span style={{ width: '90%' }}></span>
-            </div>
-            <p>Progress: 90%</p>
-            <p>Target: Stay within 2000 Calories</p>
-          </div>
-          <div className="card">
-            <h3>Personal Bests</h3>
-            <p>Squat: 150kg (new record)</p>
-            <div className="progress-bar">
-              <span style={{ width: '100%' }}></span>
-            </div>
-            <p>Progress: 100%</p>
-            <p>Target: Beat personal bests</p>
-          </div>
+          ))}
         </div>
-      </div>
-      
+        
+
       <div className="right-sidebar">
         <div className="profile-section" onClick={toggleDropdown} ref={dropdownRef}>
-          <img
-            src={`http://localhost:4000/${user.ProfilePhotoURL}`}
-            alt="Profile"
-            className="profile-photo"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'default-image-url'; // Provide a default image URL here
-            }}
-          />
+          <div className="profile-photo" style={{ backgroundColor: profileBgColor }}>
+            {user.ProfilePhotoURL ? (
+              <img
+                src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+                alt="Profile"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://via.placeholder.com/100?text=Profile'; // Provide a default image URL here
+                }}
+              />
+            ) : (
+              <span>{getInitials(user.FirstName, user.LastName)}</span>
+            )}
+          </div>
           <div className="profile-info">
             <h4>{user.FirstName} {user.LastName}</h4>
           </div>
@@ -205,6 +231,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
