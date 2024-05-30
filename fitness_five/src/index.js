@@ -12,6 +12,7 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import SignUp from './components/SignUp';
 import Workout from './components/Workout';
+import About from './components/About';
 //import ErrorPage404 from './components/ErrorPage404';
 
 const router = createBrowserRouter([
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
   {
     path: "/workout",
     element: <Workout />,
+  },
+  {
+    path: "/about",
+    element: <About />,
   }
 ]);
 

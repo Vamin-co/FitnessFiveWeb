@@ -95,46 +95,38 @@ const LandingPage = () => {
       </div>
 
       <div className="card-section">
-        <section className="testimonials">
-          <div className="testimonial">
-            <img src={user1Image} alt="User 1" />
-            <p>"A terrific piece of praise"</p>
-            <h4>Max Gochenour</h4>
-            <p>Pro Soccer Player</p>
-          </div>
-          <div className="testimonial">
-            <img src={user2Image} alt="User 2" />
-            <p>"A fantastic bit of feedback"</p>
-            <h4>Chaker Baloch</h4>
-            <p>Yoga Instructor</p>
-          </div>
-          <div className="testimonial">
-            <img src={user3Image} alt="User 3" />
-            <p>"A genuinely glowing review"</p>
-            <h4>Dmytro Dovhalets</h4>
-            <p>Subject-matter Expert</p>
-          </div>
-        </section>
+          <section className="features">
+              <div className="feature-card">
+                  <i className="fas fa-chart-line feature-icon"></i>
+                  <h4>Comprehensive Tracking</h4>
+                  <p>Monitor every aspect of your fitness journey with detailed analytics and real-time updates.</p>
+              </div>
+              <div className="feature-card">
+                  <i className="fas fa-dumbbell feature-icon"></i>
+                  <h4>Personalized Workouts</h4>
+                  <p>Receive customized workout plans tailored to your specific goals and progress.</p>
+              </div>
+              <div className="feature-card">
+                  <i className="fas fa-users feature-icon"></i>
+                  <h4>Community Support</h4>
+                  <p>Join a community of like-minded individuals to share your journey and motivate each other.</p>
+              </div>
+          </section>
       </div>
 
+
+
       <footer className="footer">
-        <ul className="footer-links">
-          <li>
-            <a href="#">Page</a>
-          </li>
-          <li>
-            <a href="#">Page</a>
-          </li>
-          <li>
-            <a href="#">Page</a>
-          </li>
-        </ul>
-        <div className="social-links">
-          <i className="fab fa-facebook"></i>
-          <i className="fab fa-twitter"></i>
-          <i className="fab fa-instagram"></i>
-        </div>
+          <div className="social-media">
+              <i className="fab fa-facebook"></i>
+              <i className="fab fa-twitter"></i>
+              <i className="fab fa-instagram"></i>
+              <i className="fab fa-linkedin"></i>
+              <i className="fab fa-youtube"></i>
+          </div>
+          <p>&copy; 2024 FitnessFive. All rights reserved.</p>
       </footer>
+
     </div>
   );
 };
