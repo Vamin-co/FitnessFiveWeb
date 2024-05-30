@@ -155,6 +155,34 @@ body {
   margin-bottom: 10px;
 }
 
+.card-actions {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.edit-button, .delete-button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  color: white;
+  background-color: #6D63FF; /* Purple, adjust as needed */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.edit-button:hover, .delete-button:hover {
+  background-color: #5a54d1; /* Darker purple on hover */
+}
+
+.delete-button {
+  background-color: #ff6347; /* Tomato red, for delete */
+}
+
+.delete-button:hover {
+  background-color: #e55342; /* Darker red on hover */
+}
+
+
 .progress-bar span {
   display: block;
   height: 100%;
@@ -182,10 +210,24 @@ body {
 }
 
 .profile-photo {
-  width: 50px;
-  height: 50px;
+  width: 30px; /* Adjust the size as needed */
+  height: 30px;
   border-radius: 50%;
-  margin-right: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* Font size for initials */
+  color: #ffffff; /* Text color for initials */
+  text-transform: uppercase; /* Ensure initials are uppercase */
+  font-weight: bold;
+}
+
+
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .profile-info {
