@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useCards } from './CardContext';  // If in the same directory
-
 import "../CSS/Dashboard.css";
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,18 +8,18 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import axios from 'axios';
 
 const data = [
-  { month: 'Jan', weight: 154.32 }, // 70 kg
-  { month: 'Feb', weight: 152.12 }, // 69 kg
-  { month: 'Mar', weight: 151.02 }, // 68.5 kg
-  { month: 'Apr', weight: 147.71 }, // 67 kg
-  { month: 'May', weight: 146.61 }, // 66.5 kg
-  { month: 'Jun', weight: 144.40 }, // 65.5 kg
-  { month: 'Jul', weight: 141.09 }, // 64 kg
-  { month: 'Aug', weight: 139.94 }, // 63.5 kg
-  { month: 'Sep', weight: 137.67 }, // 62.5 kg
-  { month: 'Oct', weight: 134.48 }, // 61 kg
-  { month: 'Nov', weight: 133.37 }, // 60.5 kg
-  { month: 'Dec', weight: 132.28 }, // 60 kg
+  { month: 'Jan', weight: 154.32 },
+  { month: 'Feb', weight: 152.12 },
+  { month: 'Mar', weight: 151.02 },
+  { month: 'Apr', weight: 147.71 },
+  { month: 'May', weight: 146.61 },
+  { month: 'Jun', weight: 144.40 },
+  { month: 'Jul', weight: 141.09 },
+  { month: 'Aug', weight: 139.94 },
+  { month: 'Sep', weight: 137.67 },
+  { month: 'Oct', weight: 134.48 },
+  { month: 'Nov', weight: 133.37 },
+  { month: 'Dec', weight: 132.28 },
 ];
 
 const Dashboard = () => {
@@ -105,6 +104,7 @@ const Dashboard = () => {
   const handleDelete = (id) => {
     removeCard(id);
   };
+  
 
   const handleEdit = (card) => {
     navigate('/workout', { state: { card } });

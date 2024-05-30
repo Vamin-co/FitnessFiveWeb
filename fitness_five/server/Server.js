@@ -8,6 +8,8 @@ const multer = require('multer');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
+const { check, validationResult } = require('express-validator'); 
+
 
 const app = express();
 const port = 4000;
@@ -333,6 +335,113 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(uploadDir));
 
+
+// POST route to create a new workout
+app.post('/workouts', [authenticateToken, [
+    check('title', 'Title is required').not().isEmpty(),
+]], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { title, exercises } = req.body;
+        const query = 'INSERT INTO Workouts (UserID, Title) VALUES (?, ?)';
+
+        db.query(query, [req.user.userID, title], (err, result) => {
+            if (err) {
+                console.error('Error inserting workout:', err);
+                return res.status(500).send('Failed to insert workout.');
+            }
+
+            const workoutID = result.insertId;
+
+            const exerciseQuery = 'INSERT INTO Exercises (WorkoutID, Name, Sets, Reps, TargetSets, TargetReps) VALUES ?';
+            const exerciseValues = exercises.map(exercise => [workoutID, exercise.name, exercise.sets, exercise.reps, exercise.targetSets, exercise.targetReps]);
+
+            db.query(exerciseQuery, [exerciseValues], (err, result) => {
+                if (err) {
+                    console.error('Error inserting exercises:', err);
+                    return res.status(500).send('Failed to insert exercises.');
+                }
+                console.log('Workout and exercises inserted successfully.');
+                res.json({ workoutID, title, exercises });
+            });
+        });
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).send('Server error.');
+    }
+});
+
+// GET route to fetch workouts for the authenticated user
+app.get('/workouts', authenticateToken, (req, res) => {
+    const query = 'SELECT * FROM Workouts WHERE UserID = ?';
+
+    db.query(query, [req.user.userID], (err, results) => {
+        if (err) {
+            console.error('Error fetching workouts:', err);
+            return res.status(500).send('Error fetching workouts.');
+        }
+        res.json(results);
+    });
+});
+
+// PUT route to update an existing workout
+app.put('/workouts/:id', authenticateToken, (req, res) => {
+    const { title, exercises } = req.body;
+
+    const query = 'UPDATE Workouts SET Title = ? WHERE WorkoutID = ? AND UserID = ?';
+
+    db.query(query, [title, req.params.id, req.user.userID], (err, result) => {
+        if (err) {
+            console.error('Error updating workout:', err);
+            return res.status(500).send('Error updating workout.');
+        }
+
+        const deleteExerciseQuery = 'DELETE FROM Exercises WHERE WorkoutID = ?';
+        db.query(deleteExerciseQuery, [req.params.id], (err, result) => {
+            if (err) {
+                console.error('Error deleting old exercises:', err);
+                return res.status(500).send('Error deleting old exercises.');
+            }
+
+            const exerciseQuery = 'INSERT INTO Exercises (WorkoutID, Name, Sets, Reps, TargetSets, TargetReps) VALUES ?';
+            const exerciseValues = exercises.map(exercise => [req.params.id, exercise.name, exercise.sets, exercise.reps, exercise.targetSets, exercise.targetReps]);
+
+            db.query(exerciseQuery, [exerciseValues], (err, result) => {
+                if (err) {
+                    console.error('Error inserting new exercises:', err);
+                    return res.status(500).send('Error inserting new exercises.');
+                }
+                console.log('Workout and exercises updated successfully.');
+                res.json({ workoutID: req.params.id, title, exercises });
+            });
+        });
+    });
+});
+
+// DELETE route to delete a workout and its exercises
+app.delete('/workouts/:id', authenticateToken, (req, res) => {
+    const query = 'DELETE FROM Workouts WHERE WorkoutID = ? AND UserID = ?';
+
+    db.query(query, [req.params.id, req.user.userID], (err, result) => {
+        if (err) {
+            console.error('Error deleting workout:', err);
+            return res.status(500).send('Error deleting workout.');
+        }
+        const deleteExerciseQuery = 'DELETE FROM Exercises WHERE WorkoutID = ?';
+        db.query(deleteExerciseQuery, [req.params.id], (err, result) => {
+            if (err) {
+                console.error('Error deleting exercises:', err);
+                return res.status(500).send('Error deleting exercises.');
+            }
+            console.log('Workout and exercises deleted successfully.');
+            res.json({ msg: 'Workout deleted successfully.' });
+        });
+    });
+});
 /**
  * Starts the Express server on a specified port.
  */

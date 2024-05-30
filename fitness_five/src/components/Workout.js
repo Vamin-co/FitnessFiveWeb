@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from "../CSS/Workout.module.css";
 import axios from 'axios';
-import { useCards } from "../components/CardContext";  // Import the useCards hook from CardContext
-import { useLocation } from 'react-router-dom';
+import { useCards } from "../components/CardContext"; 
 
 const Workout = () => {
   const [workout, setWorkout] = useState({
-    id: null,  // To track if we are editing an existing workout
+    id: null,
     title: '',
     exercises: [],
   });
-
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const { cards, addCard, updateCard, removeCard } = useCards();  // Use the additional functions from the CardContext
+  const { cards, addCard, updateCard, removeCard } = useCards();  
   const location = useLocation();
 
   const handleExerciseChange = (index, field, value) => {
@@ -22,17 +20,16 @@ const Workout = () => {
     newExercises[index] = { ...newExercises[index], [field]: value };
     setWorkout({ ...workout, exercises: newExercises });
   };
+
   useEffect(() => {
-    // Check if state exists and contains a card object
     if (location.state && location.state.card) {
       setWorkout({
-        id: location.state.card.id, // Ensure you pass the ID to handle updating
+        id: location.state.card.id,
         title: location.state.card.title,
         exercises: location.state.card.exercises
       });
     }
   }, [location]);
-
 
   const addExercise = () => {
     setWorkout({
@@ -45,26 +42,57 @@ const Workout = () => {
     navigate('/Login');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (workout.id) {
-      // Update existing workout
-      updateCard(workout.id, workout);
-    } else {
-      // Add a new workout
-      addCard({ ...workout, id: Date.now() });
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      if (workout.id) {
+        console.log(`Updating workout with id: ${workout.id}`);
+        console.log(`Workout data:`, workout);
+        // Update existing workout
+        await axios.put(`http://localhost:4000/workouts/${workout.id}`, workout, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        updateCard(workout.id, workout);
+      } else {
+        console.log('Creating a new workout');
+        console.log(`Workout data:`, workout);
+        // Add a new workout
+        const response = await axios.post('http://localhost:4000/workouts', workout, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        addCard({ ...workout, id: response.data.id });
+      }
+      setWorkout({ id: null, title: '', exercises: [] });
+    } catch (error) {
+      console.error('Error saving workout:', error);
     }
-    // Reset form or navigate away
-    setWorkout({ id: null, title: '', exercises: [] });
   };
-  
 
   const handleEdit = (card) => {
-    setWorkout(card);  // Load the existing card into the form for editing
+    setWorkout(card);
   };
 
-  const handleDelete = (id) => {
-    removeCard(id);
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      await axios.delete(`http://localhost:4000/workouts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      removeCard(id);
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+    }
   };
 
   useEffect(() => {
