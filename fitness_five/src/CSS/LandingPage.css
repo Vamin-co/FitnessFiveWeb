@@ -65,12 +65,30 @@ body {
 
 /* Profile Photo Header */
 .profile-photo-header {
-  width: 40px;
+  width: 40px; /* Adjust the size as needed */
   height: 40px;
   border-radius: 50%;
-  margin-left: 20px;
-  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* Font size for initials */
+  color: #ffffff; /* Text color for initials */
+  text-transform: uppercase; /* Ensure initials are uppercase */
+  font-weight: bold;
+  text-decoration: none;
 }
+
+
+
+
+
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
 /* Wrapper to add colored margin */
 .main-wrapper {

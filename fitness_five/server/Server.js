@@ -154,6 +154,51 @@ app.get('/profile', authenticateToken, (req, res) => {
     });
 });
 
+
+app.put('/profile', authenticateToken, async (req, res) => {
+    const userID = req.user.userID;
+    const { firstName, middleInitial, lastName, birthDate, weight, height, username, email, password } = req.body;
+
+    try {
+        const hashedPassword = password ? await bcrypt.hash(password, 8) : null;
+        const query = `
+            UPDATE Users SET 
+                FirstName = ?, 
+                MiddleInitial = ?, 
+                LastName = ?, 
+                BirthDate = ?, 
+                Weight = ?, 
+                Height = ?, 
+                Username = ?, 
+                Email = ?, 
+                ${hashedPassword ? 'Password = ?, ' : ''} 
+                ProfilePhotoURL = ?
+            WHERE UserID = ?
+        `;
+
+        const values = [
+            firstName, middleInitial, lastName, birthDate, weight, height, username, email,
+            ...(hashedPassword ? [hashedPassword] : []),
+            req.file ? `uploads/${req.file.filename}` : null,
+            userID
+        ];
+
+        db.query(query, values, (err, result) => {
+            if (err) {
+                console.error(`Error updating user profile for UserID ${userID}:`, err);
+                return res.status(500).send('Error updating user profile');
+            }
+
+            console.log(`User profile updated successfully for UserID ${userID}`);
+            res.status(200).send('Profile updated successfully');
+        });
+    } catch (error) {
+        console.error('Error in /profile route:', error);
+        res.status(500).send('Internal server error.');
+    }
+});
+
+
 /**
  * Handles POST requests to the '/messages' endpoint for submitting contact messages.
  */
@@ -198,22 +243,16 @@ app.post('/messages', (req, res) => {
     });
 });
 
-// Ensure the 'uploads' directory exists
+/// Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, 'uploads');
-console.log(`Static files will be served from: ${uploadDir}`);
-
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
-    console.log(`Created directory: ${uploadDir}`);
-} else {
-    console.log(`Directory already exists: ${uploadDir}`);
 }
 
-
-/// Configure multer storage
+// Configure multer storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);  // Use the correct path reference
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -221,7 +260,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpg', 'image/png'];
+    const allowedTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.mimetype)) {
         const error = new Error("Invalid file type");
         error.status = 400;
@@ -290,8 +329,6 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
         });
     });
 });
-
-
 
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(uploadDir));

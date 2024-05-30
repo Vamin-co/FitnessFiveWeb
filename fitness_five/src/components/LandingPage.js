@@ -6,10 +6,13 @@ import user1Image from '../Images/avatar1.jpg'; // Adjust the path as necessary
 import user2Image from '../Images/avatar2.jpg'; // Adjust the path as necessary
 import user3Image from '../Images/avatar3.jpg'; // Adjust the path as necessary
 import axios from 'axios';
+import ContactUs from '../components/ContactUs.js';
+import About from '../components/About.js';
 
 const LandingPage = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -29,6 +32,11 @@ const LandingPage = () => {
     };
 
     fetchUserData();
+
+    // Set a random background color for profile holder
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#F39C12', '#8E44AD'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setProfileBgColor(randomColor);
   }, []);
 
   const handleLogin = () => {
@@ -43,6 +51,12 @@ const LandingPage = () => {
     }
   };
 
+  const getInitials = (firstName, lastName) => {
+    const firstInitial = firstName ? firstName.charAt(0) : '';
+    const lastInitial = lastName ? lastName.charAt(0) : '';
+    return `${firstInitial}${lastInitial}`;
+  };
+
   return (
     <div>
       <header className="header">
@@ -50,24 +64,30 @@ const LandingPage = () => {
           <h1>FitnessFive</h1>
         </Link>
         <nav>
-          <ul className="nav-links">
+            <ul className="nav-links">
             <li>
-              <a href="#">About</a>
+              <Link to="/about" className="nav-link">About</Link>
             </li>
             <li>
-              <a href="#">Contact Us</a>
+              <Link to="/contact" className="nav-link">Contact Us</Link>
             </li>
             {user ? (
               <Link to="/dashboard">
-                <img
-                  src={`http://localhost:4000/${user.ProfilePhotoURL}`}
-                  alt="Profile"
-                  className="profile-photo-header"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'default-image-url'; // Provide a default image URL here
-                  }}
-                />
+                <div className="profile-photo-header" style={{ backgroundColor: profileBgColor }}>
+                  {user.ProfilePhotoURL ? (
+                    <img
+                      src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+                      alt="Profile"
+                      className="profile-photo"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'default-image-url'; // Provide a default image URL here
+                      }}
+                    />
+                  ) : (
+                    <span>{getInitials(user.FirstName, user.LastName)}</span>
+                  )}
+                </div>
               </Link>
             ) : (
               <button onClick={handleLogin}>Log in</button>

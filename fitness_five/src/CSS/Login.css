@@ -116,3 +116,8 @@
 .login-page .terms a:hover {
     color: #0056b3;
 }
+
+.title{
+    text-decoration: none;
+    color: inherit
+}

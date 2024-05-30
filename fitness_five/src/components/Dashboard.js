@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useCards } from './CardContext';  // If in the same directory
+
 import "../CSS/Dashboard.css";
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,13 +9,18 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import axios from 'axios';
 
 const data = [
-  { day: 'Sun', steps: 4000 },
-  { day: 'Mon', steps: 3000 },
-  { day: 'Tue', steps: 5000 },
-  { day: 'Wed', steps: 9245 },
-  { day: 'Thu', steps: 4800 },
-  { day: 'Fri', steps: 6200 },
-  { day: 'Sat', steps: 7300 },
+  { month: 'Jan', weight: 154.32 }, // 70 kg
+  { month: 'Feb', weight: 152.12 }, // 69 kg
+  { month: 'Mar', weight: 151.02 }, // 68.5 kg
+  { month: 'Apr', weight: 147.71 }, // 67 kg
+  { month: 'May', weight: 146.61 }, // 66.5 kg
+  { month: 'Jun', weight: 144.40 }, // 65.5 kg
+  { month: 'Jul', weight: 141.09 }, // 64 kg
+  { month: 'Aug', weight: 139.94 }, // 63.5 kg
+  { month: 'Sep', weight: 137.67 }, // 62.5 kg
+  { month: 'Oct', weight: 134.48 }, // 61 kg
+  { month: 'Nov', weight: 133.37 }, // 60.5 kg
+  { month: 'Dec', weight: 132.28 }, // 60 kg
 ];
 
 const Dashboard = () => {
@@ -22,6 +29,8 @@ const Dashboard = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null); // Reference for the dropdown menu
+  const { cards, updateCard, removeCard } = useCards();
+  const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,6 +56,11 @@ const Dashboard = () => {
     };
 
     fetchUserData();
+
+    // Set a random background color for profile holder
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#F39C12', '#8E44AD'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setProfileBgColor(randomColor);
   }, [navigate]);
 
   useEffect(() => {
@@ -79,6 +93,29 @@ const Dashboard = () => {
     return <div>Loading...</div>;
   }
 
+  const calculateExerciseProgress = (exercises) => {
+    const progress = exercises.reduce((acc, cur) => {
+      const setsProgress = (cur.sets / cur.targetSets) * 100;
+      const repsProgress = (cur.reps / cur.targetReps) * 100;
+      return acc + (setsProgress + repsProgress) / 2; // Average progress of sets and reps
+    }, 0);
+    return progress / exercises.length; // Average progress of all exercises
+  };
+
+  const handleDelete = (id) => {
+    removeCard(id);
+  };
+
+  const handleEdit = (card) => {
+    navigate('/workout', { state: { card } });
+  };
+
+  const getInitials = (firstName, lastName) => {
+    const firstInitial = firstName ? firstName.charAt(0) : '';
+    const lastInitial = lastName ? lastName.charAt(0) : '';
+    return `${firstInitial}${lastInitial}`;
+  };
+
   return (
     <div className="dashboard-container">
       <div className="sidebar">
@@ -99,10 +136,10 @@ const Dashboard = () => {
         <div className="activity-section">
           <div className="activity-graph-container">
             <div className="activity-header">
-              <h3>Activity</h3>
+              <h3>Weight Progress</h3>
               <select className="timeframe-selector">
-                <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
               </select>
             </div>
             <div className="chart-background">
@@ -110,10 +147,10 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
+                    <XAxis dataKey="month" />
+                    <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="steps" stroke="#ff6b6b" dot={{ r: 6 }} activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="weight" stroke="#ff6b6b" dot={{ r: 6 }} activeDot={{ r: 8 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -121,54 +158,48 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="cards-container">
-          <div className="card">
-            <h3>Workout Plan</h3>
-            <p>4/5 Workouts completed</p>
-            <div className="progress-bar">
-              <span style={{ width: '80%' }}></span>
+          {cards.map(card => (
+            <div key={card.id} className="card">
+              <div className="card-actions">
+                <button onClick={() => handleEdit(card)} className="edit-button">Update</button>
+                <button onClick={() => handleDelete(card.id)} className="delete-button">Remove</button>
+              </div>
+              <h3>{card.title}</h3>
+              {card.exercises.map((ex, idx) => (
+                <p key={idx}>{ex.name} - {ex.sets}/{ex.targetSets} Sets, {ex.reps}/{ex.targetReps} Reps</p>
+              ))}
+              <div className="progress-bar">
+                <span style={{ width: `${calculateExerciseProgress(card.exercises)}%` }}></span>
+              </div>
+              <p>Progress: {calculateExerciseProgress(card.exercises).toFixed(2)}%</p>
             </div>
-            <p>Progress: 80%</p>
-            <p>Target: Complete all workouts</p>
-          </div>
-          <div className="card">
-            <h3>Nutrition Plan</h3>
-            <p>1800/2000 Calories consumed</p>
-            <div className="progress-bar">
-              <span style={{ width: '90%' }}></span>
-            </div>
-            <p>Progress: 90%</p>
-            <p>Target: Stay within 2000 Calories</p>
-          </div>
-          <div className="card">
-            <h3>Personal Bests</h3>
-            <p>Squat: 150kg (new record)</p>
-            <div className="progress-bar">
-              <span style={{ width: '100%' }}></span>
-            </div>
-            <p>Progress: 100%</p>
-            <p>Target: Beat personal bests</p>
-          </div>
+          ))}
         </div>
-      </div>
-      
+        
+
       <div className="right-sidebar">
         <div className="profile-section" onClick={toggleDropdown} ref={dropdownRef}>
-          <img
-            src={`http://localhost:4000/${user.ProfilePhotoURL}`}
-            alt="Profile"
-            className="profile-photo"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'default-image-url'; // Provide a default image URL here
-            }}
-          />
+          <div className="profile-photo" style={{ backgroundColor: profileBgColor }}>
+            {user.ProfilePhotoURL ? (
+              <img
+                src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+                alt="Profile"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://via.placeholder.com/100?text=Profile'; // Provide a default image URL here
+                }}
+              />
+            ) : (
+              <span>{getInitials(user.FirstName, user.LastName)}</span>
+            )}
+          </div>
           <div className="profile-info">
             <h4>{user.FirstName} {user.LastName}</h4>
           </div>
           {dropdownVisible && (
             <div className="dropdown-menu">
-              <button onClick={() => navigate('/profile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
-              <button onClick={() => navigate('/edit-profile')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
+              <button onClick={() => navigate('/myprofile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
+              <button onClick={() => navigate('/workout')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
               <button onClick={() => navigate('/settings')}><FontAwesomeIcon icon={faCogs} /> Settings</button>
               <button onClick={() => navigate('/help')}><FontAwesomeIcon icon={faQuestionCircle} /> Help</button>
               <button onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> Sign Out</button>
@@ -192,19 +223,9 @@ const Dashboard = () => {
             <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
           </div>
         </div>
-        <div className="goal-section">
-          <h4>Weight loss Goal</h4>
-          <p>Loss: 5kg / Month</p>
-          <div className="goal-progress">
-            <div className="progress-circle">
-              <div className="circle-background">
-                <div className="circle-progress"></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
+  </div>
   );
 };
 
