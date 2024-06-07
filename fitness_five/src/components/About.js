@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../CSS/About.css';
-import aboutUsImage from '../Images/aboutphoto.jpg'; // Adjust the path as necessary
+import aboutUsImage from '../Images/aboutphoto.jpg';
 import axios from 'axios';
 
+/**
+ * About component that provides information about FitnessFive.
+ * Fetches user data if a token is available in local storage.
+ * Displays user profile information and navigation links.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered About component.
+ */
 const About = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
+    /**
+     * Fetch user data from the server.
+     * Sets user state and profile background color.
+     */
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -34,10 +46,19 @@ const About = () => {
     fetchUserData();
   }, []);
 
+  /**
+   * Navigate to the Login page.
+   */
   const handleLogin = () => {
     navigate('/Login');
   };
 
+  /**
+   * Get the initials of the user's name.
+   * @param {string} firstName - The first name of the user.
+   * @param {string} lastName - The last name of the user.
+   * @returns {string} The initials of the user's name.
+   */
   const getInitials = (firstName, lastName) => {
     const firstInitial = firstName ? firstName.charAt(0) : '';
     const lastInitial = lastName ? lastName.charAt(0) : '';
@@ -95,7 +116,7 @@ const About = () => {
       </div>
       <footer className="footer">
         <ul className="footer-links">
-          
+          {/* Add any footer links here */}
         </ul>
       </footer>
     </div>

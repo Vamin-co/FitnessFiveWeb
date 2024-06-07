@@ -15,14 +15,11 @@ const port = 4000;
 app.use(express.json());
 app.use(cors());
 
-
-
-
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Sarbaaz@#$8090',
-    database: 'DbFitnessApp',
+    password: '', // password
+    database: '', //Add your custom database
     port: 3306
 });
 
@@ -36,7 +33,9 @@ db.connect(err => {
 
 const SECRET_KEY = 'your_secret_key'; // Define a secret key for signing JWTs
 
-// Middleware to log and send responses for any server errors.
+/**
+ * Middleware to handle server errors.
+ */
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
@@ -44,6 +43,9 @@ app.use((err, req, res, next) => {
 
 /**
  * Registers a new user with hashed password storage.
+ * @name POST /register
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.post('/register', async (req, res) => {
     try {
@@ -67,7 +69,10 @@ app.post('/register', async (req, res) => {
 });
 
 /**
- * API endpoint for user sign-in. Validates credentials and returns appropriate response messages.
+ * Logs in a user and returns a JWT token.
+ * @name POST /login
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -116,6 +121,12 @@ app.post('/login', (req, res) => {
     });
 });
 
+/**
+ * Middleware to authenticate JWT token.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ */
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -135,6 +146,12 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+/**
+ * Retrieves the profile of the authenticated user.
+ * @name GET /profile
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.get('/profile', authenticateToken, (req, res) => {
     const userID = req.user.userID;
     const query = 'SELECT UserID, FirstName, LastName, Email, ProfilePhotoURL FROM Users WHERE UserID = ?';
@@ -154,7 +171,12 @@ app.get('/profile', authenticateToken, (req, res) => {
     });
 });
 
-
+/**
+ * Updates the profile of the authenticated user.
+ * @name PUT /profile
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.put('/profile', authenticateToken, async (req, res) => {
     const userID = req.user.userID;
     const { firstName, middleInitial, lastName, birthDate, weight, height, username, email, password } = req.body;
@@ -198,9 +220,11 @@ app.put('/profile', authenticateToken, async (req, res) => {
     }
 });
 
-
 /**
- * Handles POST requests to the '/messages' endpoint for submitting contact messages.
+ * Submits a contact message.
+ * @name POST /messages
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
  */
 app.post('/messages', (req, res) => {
     let { email, message } = req.body;
@@ -209,7 +233,6 @@ app.post('/messages', (req, res) => {
         return res.status(400).send('Email and message are required.');
     }
 
-    // Sanitize and check for URLs as before
     email = sanitizeHtml(email, { allowedTags: [], allowedAttributes: {} });
     message = sanitizeHtml(message, { allowedTags: [], allowedAttributes: {} });
 
@@ -218,7 +241,6 @@ app.post('/messages', (req, res) => {
         return res.status(400).send('URLs are not allowed in the message.');
     }
 
-    // Assuming email can be used to find the UserID
     const userQuery = 'SELECT UserID FROM Users WHERE Email = ?';
     db.query(userQuery, [email], (err, result) => {
         if (err) {
@@ -243,7 +265,7 @@ app.post('/messages', (req, res) => {
     });
 });
 
-/// Ensure the 'uploads' directory exists
+// Ensure the 'uploads' directory exists
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
@@ -280,7 +302,12 @@ const uploadLimiter = rateLimit({
     max: 100 // limit each IP to 100 requests per windowMs
 });
 
-// Endpoint to handle image upload
+/**
+ * Handles image upload and updates user profile with the image URL.
+ * @name POST /upload
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => {
     const { username, password } = req.body;
 
@@ -316,7 +343,6 @@ app.post('/upload', uploadLimiter, upload.single('profilePhoto'), (req, res) => 
             const userId = user.UserID;
             const profilePhotoURL = `uploads/${req.file.filename}`;
 
-            // Update the Users table
             const updateUserQuery = 'UPDATE Users SET ProfilePhotoURL = ? WHERE UserID = ?';
             db.query(updateUserQuery, [profilePhotoURL, userId], (err, result) => {
                 if (err) {
@@ -335,6 +361,7 @@ app.use('/uploads', express.static(uploadDir));
 
 /**
  * Starts the Express server on a specified port.
+ * @param {number} port - The port number on which the server will listen.
  */
 app.listen(port, () => {
     console.log(`API listening at http://localhost:${port}/`);

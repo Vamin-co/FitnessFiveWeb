@@ -7,19 +7,16 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
-import History from './components/History';
 import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Workout from './components/Workout';
 import Error404 from './components/Error404';
-import Settings from './components/Settings';
 import Myprofile from './components/Myprofile';
-import Help from './components/Help';
 import About from './components/About';
 import ContactUs from './components/ContactUs';
 
-// Define your routes
+// Routes
 const router = createBrowserRouter([
   {
     path: "/", 
@@ -28,10 +25,6 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
-  },
-  {
-    path: "/history",
-    element: <History />,
   },
   {
     path: "/leaderboard",
@@ -56,14 +49,6 @@ const router = createBrowserRouter([
   {
     path: "/myprofile",
     element: <Myprofile />,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
-  },
-  {
-    path: "/help",
-    element: <Help />,
   },
   {
     path: "/about",

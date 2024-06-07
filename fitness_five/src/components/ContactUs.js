@@ -4,6 +4,14 @@ import axios from 'axios';
 import '../CSS/ContactUs.css';
 import contactUsImage from '../Images/contactus.jpg';
 
+/**
+ * ContactUs component that provides a contact form for users to send messages.
+ * Fetches user data if a token is available in local storage.
+ * Displays user profile information and a contact form.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered ContactUs component.
+ */
 const ContactUs = () => {
   const [user, setUser] = useState(null);
   const [profileBgColor, setProfileBgColor] = useState('');
@@ -15,6 +23,10 @@ const ContactUs = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    /**
+     * Fetch user data from the server.
+     * Sets user state and profile background color.
+     */
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -38,16 +50,30 @@ const ContactUs = () => {
     fetchUserData();
   }, []);
 
+  /**
+   * Navigate to the Login page.
+   */
   const handleLogin = () => {
     navigate('/Login');
   };
 
+  /**
+   * Get the initials of the user's name.
+   * @param {string} firstName - The first name of the user.
+   * @param {string} lastName - The last name of the user.
+   * @returns {string} The initials of the user's name.
+   */
   const getInitials = (firstName, lastName) => {
     const firstInitial = firstName ? firstName.charAt(0) : '';
     const lastInitial = lastName ? lastName.charAt(0) : '';
     return `${firstInitial}${lastInitial}`;
   };
 
+  /**
+   * Handle the form submission.
+   * Sends the contact message to the server.
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

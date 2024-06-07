@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../CSS/Myprofile.css';
 
+/**
+ * Myprofile component for displaying and updating the user's profile.
+ * Fetches user data from the server and allows updates to profile details and photo.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered Myprofile component.
+ */
 const Myprofile = () => {
   const [user, setUser] = useState({
     firstName: '',
@@ -22,6 +29,10 @@ const Myprofile = () => {
   const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
+    /**
+     * Fetch user data from the server.
+     * Sets user state and profile background color.
+     */
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -63,6 +74,10 @@ const Myprofile = () => {
     setProfileBgColor(randomColor);
   }, []);
 
+  /**
+   * Handle input change for user details.
+   * @param {Object} e - The input change event.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser({
@@ -71,10 +86,19 @@ const Myprofile = () => {
     });
   };
 
+  /**
+   * Handle profile photo file change.
+   * @param {Object} e - The file change event.
+   */
   const handlePhotoChange = (e) => {
     setNewPhoto(e.target.files[0]);
   };
 
+  /**
+   * Handle form submission for profile update.
+   * Sends updated user details and photo to the server.
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -103,7 +127,6 @@ const Myprofile = () => {
       });
 
       if (newPhoto) {
-        // Upload the new profile photo
         const photoFormData = new FormData();
         photoFormData.append('profilePhoto', newPhoto);
 
@@ -121,6 +144,12 @@ const Myprofile = () => {
     }
   };
 
+  /**
+   * Get the initials of the user's name.
+   * @param {string} firstName - The first name of the user.
+   * @param {string} lastName - The last name of the user.
+   * @returns {string} The initials of the user's name.
+   */
   const getInitials = (firstName, lastName) => {
     const firstInitial = firstName ? firstName.charAt(0) : '';
     const lastInitial = lastName ? lastName.charAt(0) : '';
@@ -138,17 +167,14 @@ const Myprofile = () => {
       <div className="profile-card">
         <img className="profile-banner" src="https://via.placeholder.com/100x200" alt="Profile Banner" />
         <div className="profile-details">
-          <div 
-            className="profile-photo-user" 
-            style={{ backgroundColor: profileBgColor }}
-          >
+          <div className="profile-photo-user" style={{ backgroundColor: profileBgColor }}>
             {profilePhotoURL ? (
               <img 
                 src={`http://localhost:4000/${profilePhotoURL}`} 
                 alt="Profile" 
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/100?text=Profile'; // Provide a default image URL here
+                  e.target.src = 'https://via.placeholder.com/100?text=Profile';
                 }}
               />
             ) : (

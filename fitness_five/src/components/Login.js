@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import styles from "../CSS/Workout.module.css";
 import axios from 'axios';
 import '../CSS/Login.css';
 
+/**
+ * Login component for user authentication.
+ * Provides a form for users to log in with their username and password.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered Login component.
+ */
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate(); // Initialize useNavigate
 
+    /**
+     * Handle form submission for login.
+     * Sends username and password to the server for authentication.
+     *
+     * @param {Object} e - The form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -26,14 +38,14 @@ const Login = () => {
         <div className="login-page">
             <div className="container">
                 <header className="header">
-                <Link to="/" className='title'>
-                    <h1>FitnessFive</h1>
-                </Link>
+                    <Link to="/" className='title'>
+                        <h1>FitnessFive</h1>
+                    </Link>
                 </header>
                 <main className="login-box">
                     <div className="login-header">
                         <h1>Log in</h1>
-                        <p>Don't have an account? <a href="/signup">Sign up</a></p>
+                        <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
                     </div>
                     <form className="login-form" onSubmit={handleSubmit}>
                         <div className="input-group">

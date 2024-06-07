@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useCards } from './CardContext';  // If in the same directory
-
 import "../CSS/Dashboard.css";
 import { useNavigate, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,20 +8,27 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import axios from 'axios';
 
 const data = [
-  { month: 'Jan', weight: 154.32 }, // 70 kg
-  { month: 'Feb', weight: 152.12 }, // 69 kg
-  { month: 'Mar', weight: 151.02 }, // 68.5 kg
-  { month: 'Apr', weight: 147.71 }, // 67 kg
-  { month: 'May', weight: 146.61 }, // 66.5 kg
-  { month: 'Jun', weight: 144.40 }, // 65.5 kg
-  { month: 'Jul', weight: 141.09 }, // 64 kg
-  { month: 'Aug', weight: 139.94 }, // 63.5 kg
-  { month: 'Sep', weight: 137.67 }, // 62.5 kg
-  { month: 'Oct', weight: 134.48 }, // 61 kg
-  { month: 'Nov', weight: 133.37 }, // 60.5 kg
-  { month: 'Dec', weight: 132.28 }, // 60 kg
+  { month: 'Jan', weight: 154.32 },
+  { month: 'Feb', weight: 152.12 },
+  { month: 'Mar', weight: 151.02 },
+  { month: 'Apr', weight: 147.71 },
+  { month: 'May', weight: 146.61 },
+  { month: 'Jun', weight: 144.40 },
+  { month: 'Jul', weight: 141.09 },
+  { month: 'Aug', weight: 139.94 },
+  { month: 'Sep', weight: 137.67 },
+  { month: 'Oct', weight: 134.48 },
+  { month: 'Nov', weight: 133.37 },
+  { month: 'Dec', weight: 132.28 },
 ];
 
+/**
+ * Dashboard component displaying user data, weight progress chart, and cards.
+ * Fetches user data and provides functions to update, delete, and edit cards.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered Dashboard component.
+ */
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
@@ -33,6 +39,10 @@ const Dashboard = () => {
   const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
+    /**
+     * Fetch user data from the server.
+     * Sets user state and profile background color.
+     */
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -64,6 +74,10 @@ const Dashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
+    /**
+     * Handle clicks outside of the dropdown to close it.
+     * @param {Object} event - The click event.
+     */
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownVisible(false);
@@ -76,11 +90,17 @@ const Dashboard = () => {
     };
   }, []);
 
+  /**
+   * Handle user sign-out by removing token and redirecting to home.
+   */
   const handleSignOut = () => {
     localStorage.removeItem('token');
     navigate('/');
   };
 
+  /**
+   * Toggle the visibility of the dropdown menu.
+   */
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
@@ -93,23 +113,42 @@ const Dashboard = () => {
     return <div>Loading...</div>;
   }
 
+  /**
+   * Calculate exercise progress as a percentage.
+   * @param {Array} exercises - The list of exercises.
+   * @returns {number} The average progress of all exercises.
+   */
   const calculateExerciseProgress = (exercises) => {
     const progress = exercises.reduce((acc, cur) => {
       const setsProgress = (cur.sets / cur.targetSets) * 100;
       const repsProgress = (cur.reps / cur.targetReps) * 100;
-      return acc + (setsProgress + repsProgress) / 2; // Average progress of sets and reps
+      return acc + (setsProgress + repsProgress) / 2;
     }, 0);
-    return progress / exercises.length; // Average progress of all exercises
+    return progress / exercises.length;
   };
 
+  /**
+   * Handle the deletion of a card.
+   * @param {number} id - The ID of the card to delete.
+   */
   const handleDelete = (id) => {
     removeCard(id);
   };
 
+  /**
+   * Handle the editing of a card.
+   * @param {Object} card - The card to edit.
+   */
   const handleEdit = (card) => {
     navigate('/workout', { state: { card } });
   };
 
+  /**
+   * Get the initials of the user's name.
+   * @param {string} firstName - The first name of the user.
+   * @param {string} lastName - The last name of the user.
+   * @returns {string} The initials of the user's name.
+   */
   const getInitials = (firstName, lastName) => {
     const firstInitial = firstName ? firstName.charAt(0) : '';
     const lastInitial = lastName ? lastName.charAt(0) : '';
@@ -130,7 +169,7 @@ const Dashboard = () => {
         </NavLink>
         <div className="sidebar-icon bottom-icon">
           <FontAwesomeIcon icon={faQuestionCircle} />
-      </div>
+        </div>
       </div>
       <div className="main-content">
         <div className="activity-section">
@@ -175,57 +214,55 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
-        
-
-      <div className="right-sidebar">
-        <div className="profile-section" onClick={toggleDropdown} ref={dropdownRef}>
-          <div className="profile-photo" style={{ backgroundColor: profileBgColor }}>
-            {user.ProfilePhotoURL ? (
-              <img
-                src={`http://localhost:4000/${user.ProfilePhotoURL}`}
-                alt="Profile"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/100?text=Profile'; // Provide a default image URL here
-                }}
-              />
-            ) : (
-              <span>{getInitials(user.FirstName, user.LastName)}</span>
+        <div className="right-sidebar">
+          <div className="profile-section" onClick={toggleDropdown} ref={dropdownRef}>
+            <div className="profile-photo" style={{ backgroundColor: profileBgColor }}>
+              {user.ProfilePhotoURL ? (
+                <img
+                  src={`http://localhost:4000/${user.ProfilePhotoURL}`}
+                  alt="Profile"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/100?text=Profile';
+                  }}
+                />
+              ) : (
+                <span>{getInitials(user.FirstName, user.LastName)}</span>
+              )}
+            </div>
+            <div className="profile-info">
+              <h4>{user.FirstName} {user.LastName}</h4>
+            </div>
+            {dropdownVisible && (
+              <div className="dropdown-menu">
+                <button onClick={() => navigate('/myprofile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
+                <button onClick={() => navigate('/workout')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
+                <button onClick={() => navigate('/settings')}><FontAwesomeIcon icon={faCogs} /> Settings</button>
+                <button onClick={() => navigate('/help')}><FontAwesomeIcon icon={faQuestionCircle} /> Help</button>
+                <button onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> Sign Out</button>
+              </div>
             )}
           </div>
-          <div className="profile-info">
-            <h4>{user.FirstName} {user.LastName}</h4>
-          </div>
-          {dropdownVisible && (
-            <div className="dropdown-menu">
-              <button onClick={() => navigate('/myprofile')}><FontAwesomeIcon icon={faUser} /> My Profile</button>
-              <button onClick={() => navigate('/workout')}><FontAwesomeIcon icon={faUserEdit} /> Edit Workout</button>
-              <button onClick={() => navigate('/settings')}><FontAwesomeIcon icon={faCogs} /> Settings</button>
-              <button onClick={() => navigate('/help')}><FontAwesomeIcon icon={faQuestionCircle} /> Help</button>
-              <button onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> Sign Out</button>
+          <div className="navigation-section">
+            <div className="nav-item">
+              <FontAwesomeIcon icon={faBullseye} />
+              <span>Goals</span>
+              <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
             </div>
-          )}
-        </div>
-        <div className="navigation-section">
-          <div className="nav-item">
-            <FontAwesomeIcon icon={faBullseye} />
-            <span>Goals</span>
-            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
-          </div>
-          <div className="nav-item">
-            <FontAwesomeIcon icon={faAppleAlt} />
-            <span>Diet</span>
-            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
-          </div>
-          <div className="nav-item">
-            <FontAwesomeIcon icon={faCog} />
-            <span>Settings</span>
-            <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+            <div className="nav-item">
+              <FontAwesomeIcon icon={faAppleAlt} />
+              <span>Diet</span>
+              <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+            </div>
+            <div className="nav-item">
+              <FontAwesomeIcon icon={faCog} />
+              <span>Settings</span>
+              <FontAwesomeIcon icon={faArrowRight} className="arrow-icon" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   );
 };
 

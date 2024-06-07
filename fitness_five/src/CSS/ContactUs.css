@@ -1,3 +1,6 @@
+/* General styles */
+
+/* Ensure body and html take full height and width with no margin or padding */
 body, html {
     width: 100%;
     height: 100%;
@@ -6,6 +9,9 @@ body, html {
     font-family: 'Inter', sans-serif;
 }
 
+/* Container styles */
+
+/* Full-width and full-height container for the contact us section */
 .contact-us-container {
     width: 100%;
     height: 100%;
@@ -13,6 +19,9 @@ body, html {
     background: white;
 }
 
+/* Navbar styles for the contact us section */
+
+/* Styling for the contact us navbar */
 .contact-us-navbar {
     height: 164px;
     padding: 56px 80px;
@@ -22,6 +31,7 @@ body, html {
     background: white;
 }
 
+/* Title styling within the contact us navbar */
 .contact-us-title {
     color: black;
     font-size: 20px;
@@ -29,12 +39,14 @@ body, html {
     line-height: 30px;
 }
 
+/* Navigation links within the contact us navbar */
 .contact-us-nav-links {
     display: flex;
     align-items: center;
     gap: 48px;
 }
 
+/* Individual navigation link styling */
 .contact-us-nav-link {
     color: black;
     font-size: 20px;
@@ -43,6 +55,7 @@ body, html {
     text-decoration: none;
 }
 
+/* Login button styling within the contact us navbar */
 .contact-us-login-button {
     padding: 14px 24px;
     background: black;
@@ -55,6 +68,7 @@ body, html {
     cursor: pointer;
 }
 
+/* Login button text styling */
 .contact-us-login-text {
     color: white;
     font-size: 16px;
@@ -62,17 +76,22 @@ body, html {
     line-height: 24px;
 }
 
+/* Header styles for the contact us section */
+
+/* Container styling for the contact us header */
 .contact-us-header {
     padding-left: 80px;
     margin-top: 12vh;
 }
 
+/* Title styling within the contact us header */
 .contact-us-header-title {
     color: black;
     font-size: 64px;
     font-weight: 700;
 }
 
+/* Subtitle styling within the contact us header */
 .contact-us-header-subtitle {
     color: #828282;
     font-size: 24px;
@@ -80,6 +99,9 @@ body, html {
     line-height: 36px;
 }
 
+/* Form container styles for the contact us section */
+
+/* Flexbox layout for the contact us form container */
 .contact-us-form-container {
     display: flex;
     justify-content: space-between;
@@ -88,6 +110,7 @@ body, html {
     gap: 50px; /* Adjust gap to ensure proper spacing */
 }
 
+/* Flexbox layout for the contact us form */
 .contact-us-form {
     display: flex;
     flex-direction: column;
@@ -95,12 +118,14 @@ body, html {
     width: 626px;
 }
 
+/* Form group styling within the contact us form */
 .contact-us-form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
+/* Label styling within the contact us form */
 .contact-us-label {
     color: black;
     font-size: 16px;
@@ -108,6 +133,7 @@ body, html {
     line-height: 24px;
 }
 
+/* Input and textarea styling within the contact us form */
 .contact-us-input, .contact-us-textarea {
     padding: 12px 16px;
     background: white;
@@ -121,11 +147,13 @@ body, html {
     width: 100%;
 }
 
+/* Specific styling for the textarea within the contact us form */
 .contact-us-textarea {
     height: 150px;
-    resize: none;
+    resize: none; /* Prevent resizing of textarea */
 }
 
+/* Submit button styling within the contact us form */
 .contact-us-submit-button {
     height: 62px;
     padding: 16px 32px;
@@ -139,6 +167,7 @@ body, html {
     cursor: pointer;
 }
 
+/* Submit button text styling */
 .contact-us-submit-text {
     color: white;
     font-size: 20px;
@@ -146,6 +175,7 @@ body, html {
     line-height: 30px;
 }
 
+/* Image styling within the contact us section */
 .contact-us-image {
     width: 508px;
     height: 657px;
@@ -153,12 +183,16 @@ body, html {
     margin-top: -18vh; /* Adjust margin-top to lift the image */
 }
 
+/* Footer styles for the contact us section */
+
+/* Full-width container styling for the contact us footer */
 .contact-us-footer {
     width: 100%;
     padding: 40px 80px;
     background: white;
 }
 
+/* Logo styling within the contact us footer */
 .contact-us-footer-logo {
     color: black;
     font-size: 24px;
@@ -166,18 +200,21 @@ body, html {
     line-height: 36px;
 }
 
+/* Flexbox layout for footer links within the contact us footer */
 .contact-us-footer-links {
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
 }
 
+/* Section styling within the contact us footer */
 .contact-us-footer-section {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
+/* Title styling within the contact us footer */
 .contact-us-footer-title {
     color: black;
     font-size: 16px;
@@ -185,6 +222,7 @@ body, html {
     line-height: 24px;
 }
 
+/* Individual footer link styling */
 .contact-us-footer-link {
     color: #454545;
     font-size: 16px;
@@ -193,6 +231,7 @@ body, html {
     text-decoration: none;
 }
 
+/* Divider styling within the contact us footer */
 .contact-us-footer-divider {
     width: 100%;
     height: 1px;
@@ -200,11 +239,13 @@ body, html {
     margin: 40px 0;
 }
 
+/* Flexbox layout for social media links within the contact us footer */
 .contact-us-footer-socials {
     display: flex;
     gap: 16px;
 }
 
+/* Icon styling within the contact us footer */
 .contact-us-footer-icon {
     width: 40px;
     height: 40px;

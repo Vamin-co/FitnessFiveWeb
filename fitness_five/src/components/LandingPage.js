@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../CSS/LandingPage.css';
-import fitnessImage from '../Images/fitnessImage.jpg'; // Adjust the path as necessary
-import user1Image from '../Images/avatar1.jpg'; // Adjust the path as necessary
-import user2Image from '../Images/avatar2.jpg'; // Adjust the path as necessary
-import user3Image from '../Images/avatar3.jpg'; // Adjust the path as necessary
+import fitnessImage from '../Images/fitnessImage.jpg';
 import axios from 'axios';
-import ContactUs from '../components/ContactUs.js';
-import About from '../components/About.js';
 
+
+/**
+ * LandingPage component that serves as the main entry point for the application.
+ * Displays a welcome message, navigation links, and user profile information if logged in.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered LandingPage component.
+ */
 const LandingPage = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [profileBgColor, setProfileBgColor] = useState('');
 
   useEffect(() => {
+    /**
+     * Fetch user data from the server.
+     * Sets user state and profile background color.
+     */
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -39,10 +46,16 @@ const LandingPage = () => {
     setProfileBgColor(randomColor);
   }, []);
 
+  /**
+   * Navigate to the Login page.
+   */
   const handleLogin = () => {
     navigate('/Login');
   };
 
+  /**
+   * Navigate to the Dashboard page if user is logged in, otherwise navigate to Login page.
+   */
   const handleStartTracking = () => {
     if (user) {
       navigate('/dashboard');
@@ -51,6 +64,12 @@ const LandingPage = () => {
     }
   };
 
+  /**
+   * Get the initials of the user's name.
+   * @param {string} firstName - The first name of the user.
+   * @param {string} lastName - The last name of the user.
+   * @returns {string} The initials of the user's name.
+   */
   const getInitials = (firstName, lastName) => {
     const firstInitial = firstName ? firstName.charAt(0) : '';
     const lastInitial = lastName ? lastName.charAt(0) : '';
@@ -64,7 +83,7 @@ const LandingPage = () => {
           <h1>FitnessFive</h1>
         </Link>
         <nav>
-            <ul className="nav-links">
+          <ul className="nav-links">
             <li>
               <Link to="/about" className="nav-link">About</Link>
             </li>
@@ -115,45 +134,34 @@ const LandingPage = () => {
       </div>
 
       <div className="card-section">
-        <section className="testimonials">
-          <div className="testimonial">
-            <img src={user1Image} alt="User 1" />
-            <p>"A terrific piece of praise"</p>
-            <h4>Max Gochenour</h4>
-            <p>Pro Soccer Player</p>
+        <section className="features">
+          <div className="feature-card">
+            <i className="fas fa-chart-line feature-icon"></i>
+            <h4>Comprehensive Tracking</h4>
+            <p>Monitor every aspect of your fitness journey with detailed analytics and real-time updates.</p>
           </div>
-          <div className="testimonial">
-            <img src={user2Image} alt="User 2" />
-            <p>"A fantastic bit of feedback"</p>
-            <h4>Chaker Baloch</h4>
-            <p>Yoga Instructor</p>
+          <div className="feature-card">
+            <i className="fas fa-dumbbell feature-icon"></i>
+            <h4>Personalized Workouts</h4>
+            <p>Receive customized workout plans tailored to your specific goals and progress.</p>
           </div>
-          <div className="testimonial">
-            <img src={user3Image} alt="User 3" />
-            <p>"A genuinely glowing review"</p>
-            <h4>Dmytro Dovhalets</h4>
-            <p>Subject-matter Expert</p>
+          <div className="feature-card">
+            <i className="fas fa-users feature-icon"></i>
+            <h4>Community Support</h4>
+            <p>Join a community of like-minded individuals to share your journey and motivate each other.</p>
           </div>
         </section>
       </div>
 
       <footer className="footer">
-        <ul className="footer-links">
-          <li>
-            <a href="#">Page</a>
-          </li>
-          <li>
-            <a href="#">Page</a>
-          </li>
-          <li>
-            <a href="#">Page</a>
-          </li>
-        </ul>
-        <div className="social-links">
+        <div className="social-media">
           <i className="fab fa-facebook"></i>
           <i className="fab fa-twitter"></i>
           <i className="fab fa-instagram"></i>
+          <i className="fab fa-linkedin"></i>
+          <i className="fab fa-youtube"></i>
         </div>
+        <p>&copy; 2024 FitnessFive. All rights reserved.</p>
       </footer>
     </div>
   );

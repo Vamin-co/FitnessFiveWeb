@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from "../CSS/Workout.module.css";
 import axios from 'axios';
-import { useCards } from "../components/CardContext";  // Import the useCards hook from CardContext
+import { useCards } from "../components/CardContext";
 import { useLocation } from 'react-router-dom';
 
+/**
+ * Workout component for creating and editing workouts.
+ * Provides a form for users to add exercises and manage their workouts.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered Workout component.
+ */
 const Workout = () => {
   const [workout, setWorkout] = useState({
     id: null,  // To track if we are editing an existing workout
@@ -14,26 +21,35 @@ const Workout = () => {
 
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const { cards, addCard, updateCard, removeCard } = useCards();  // Use the additional functions from the CardContext
+  const { cards, addCard, updateCard, removeCard } = useCards();
   const location = useLocation();
 
-  const handleExerciseChange = (index, field, value) => {
-    let newExercises = [...workout.exercises];
-    newExercises[index] = { ...newExercises[index], [field]: value };
-    setWorkout({ ...workout, exercises: newExercises });
-  };
   useEffect(() => {
     // Check if state exists and contains a card object
     if (location.state && location.state.card) {
       setWorkout({
-        id: location.state.card.id, // Ensure you pass the ID to handle updating
+        id: location.state.card.id,
         title: location.state.card.title,
         exercises: location.state.card.exercises
       });
     }
   }, [location]);
 
+  /**
+   * Handle input change for exercise details.
+   * @param {number} index - The index of the exercise in the exercises array.
+   * @param {string} field - The field to update (name, sets, reps, targetSets, targetReps).
+   * @param {string|number} value - The new value for the field.
+   */
+  const handleExerciseChange = (index, field, value) => {
+    let newExercises = [...workout.exercises];
+    newExercises[index] = { ...newExercises[index], [field]: value };
+    setWorkout({ ...workout, exercises: newExercises });
+  };
 
+  /**
+   * Add a new exercise to the workout.
+   */
   const addExercise = () => {
     setWorkout({
       ...workout,
@@ -41,10 +57,17 @@ const Workout = () => {
     });
   };
 
+  /**
+   * Handle login navigation.
+   */
   const handleLogin = () => {
     navigate('/Login');
   };
 
+  /**
+   * Handle form submission for adding or updating a workout.
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     if (workout.id) {
@@ -57,16 +80,10 @@ const Workout = () => {
     // Reset form or navigate away
     setWorkout({ id: null, title: '', exercises: [] });
   };
-  
 
-  const handleEdit = (card) => {
-    setWorkout(card);  // Load the existing card into the form for editing
-  };
-
-  const handleDelete = (id) => {
-    removeCard(id);
-  };
-
+  /**
+   * Handle user data fetch on component mount.
+   */
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
