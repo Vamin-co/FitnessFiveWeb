@@ -1,70 +1,213 @@
-# Getting Started with Create React App
+# Fitness App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive fitness application designed to help users track their workouts, monitor their progress, and achieve their fitness goals.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+- [Running the Application](#running-the-application)
+- [Database Usage](#database-usage)
 
-### `npm start`
+## Project Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The Fitness App is designed to provide users with a convenient way to manage and track their fitness routines. This app addresses common problems such as the lack of structured workout plans, difficulty in tracking progress, and the need for personalized fitness recommendations. By integrating various features, the Fitness App helps users stay motivated and achieve their fitness goals more efficiently.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+List the main features of your project:
+- **Workout Tracking**: Log and monitor workouts with detailed information on exercises, sets, and repetitions.
+- **Progress Monitoring**: Visualize progress over time with graphs and statistics.
+- **Custom Workout Plans**: Create and manage personalized workout plans tailored to individual fitness goals.
+- **Nutrition Tracking**: Log daily food intake and monitor nutritional values.
+- **Goal Setting**: Set and track fitness goals, including weight loss, muscle gain, and endurance improvement.
+- **User Authentication**: Secure user authentication and profile management using JWT.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Technologies Used
 
-### `npm run build`
+List all the major technologies used in your project:
+- [React](https://reactjs.org/)
+- [Node.js](https://nodejs.org/)
+- [Express](https://expressjs.com/)
+- [MySQL](https://www.mysql.com/)
+- [JWT](https://jwt.io/)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Make sure you have the following installed on your machine:
+- [Node.js](https://nodejs.org/) (v14.x or higher)
+- [npm](https://www.npmjs.com/) (v6.x or higher)
+- [MySQL](https://www.mysql.com/)
 
-### `npm run eject`
+### Backend Setup
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/Vamin-co/FitnessFiveWeb.git
+    cd your-repo-name/backend
+    ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Set up environment variables:
+    Create a `.env` file in the `backend` directory and add your environment variables:
+    ```env
+    PORT=5000
+    MYSQL_HOST=your_mysql_host
+    MYSQL_USER=your_mysql_user
+    MYSQL_PASSWORD=your_mysql_password
+    MYSQL_DATABASE=your_mysql_database
+    JWT_SECRET=your_jwt_secret
+    ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+4. Initialize the database:
+    Run the SQL scripts to set up your database schema.
 
-## Learn More
+5. Start the backend server:
+    ```bash
+    npm start
+    ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Frontend Setup
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Navigate to the frontend directory:
+    ```bash
+    cd ../frontend
+    ```
 
-### Code Splitting
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+3. Set up environment variables:
+    Create a `.env` file in the `frontend` directory and add your environment variables:
+    ```env
+    REACT_APP_API_URL=http://localhost:5000
+    ```
 
-### Analyzing the Bundle Size
+4. Start the frontend development server:
+    ```bash
+    npm start
+    ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Running the Application
 
-### Making a Progressive Web App
+After completing the installation steps, you can run the application:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+1. Make sure the backend server is running:
+    ```bash
+    cd backend
+    npm start
+    ```
 
-### Advanced Configuration
+2. Make sure the frontend development server is running:
+    ```bash
+    cd frontend
+    npm start
+    ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+3. Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 
-### Deployment
+## Database Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+This project uses a MySQL database for storing and retrieving data. The database is used to manage various aspects of the application, such as user authentication, workout plans, and nutrition tracking.
 
-### `npm run build` fails to minify
+### Setting Up the Database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. **Install MySQL**: Ensure you have MySQL installed on your local machine or a remote server. You can download it from [MySQL's official website](https://dev.mysql.com/downloads/).
+
+2. **Create a Database**: Create a new database for your project. You can use the following SQL command:
+    ```sql
+    CREATE DATABASE fitness_app;
+    ```
+
+3. **Create Tables**: Create the necessary tables for your application. Here are the SQL commands based on your schema:
+
+    ```sql
+    CREATE TABLE Users (
+        UserID INT AUTO_INCREMENT PRIMARY KEY,
+        FirstName VARCHAR(50),
+        MiddleInitial CHAR(1),
+        LastName VARCHAR(50),
+        BirthDate DATE,
+        Weight DECIMAL(5,2),
+        Height DECIMAL(5,2),
+        Username VARCHAR(50),
+        Email VARCHAR(100) UNIQUE,
+        Password VARCHAR(255),
+        ProfilePhotoURL VARCHAR(255)
+    );
+
+    CREATE TABLE Workouts (
+        WorkoutID INT AUTO_INCREMENT PRIMARY KEY,
+        UserID INT,
+        Title VARCHAR(255),
+        FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    );
+
+    CREATE TABLE Exercises (
+        ExerciseID INT AUTO_INCREMENT PRIMARY KEY,
+        WorkoutID INT,
+        Name VARCHAR(255),
+        Sets INT,
+        Reps INT,
+        TargetSets INT,
+        TargetReps INT,
+        FOREIGN KEY (WorkoutID) REFERENCES Workouts(WorkoutID)
+    );
+
+    CREATE TABLE ContactMessages (
+        MessageID INT AUTO_INCREMENT PRIMARY KEY,
+        UserID INT,
+        Email VARCHAR(100),
+        Message TEXT,
+        SubmittedAt TIMESTAMP,
+        FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    );
+    ```
+
+4. **Configure Database Connection**: Update your Node.js backend to connect to the MySQL database. Ensure you have the `mysql2` package installed:
+    ```bash
+    npm install mysql2
+    ```
+    Then, configure the connection in your backend code:
+    ```javascript
+    const mysql = require('mysql2');
+
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'yourUsername',
+        password: 'yourPassword',
+        database: 'fitness_app'
+    });
+
+    connection.connect((err) => {
+        if (err) {
+            console.error('Error connecting to the database:', err);
+            return;
+        }
+        console.log('Connected to the MySQL database.');
+    });
+    ```
+
+### API Endpoints
+
+The application uses various API endpoints to interact with the database. Here are some examples:
+
+- **User Signup**: `POST /api/signup` - Registers a new user.
+- **User Login**: `POST /api/login` - Authenticates a user and returns a JWT token.
+- **Get Workout Plans**: `GET /api/workouts` - Retrieves all workout plans for the authenticated user.
+- **Create Workout Plan**: `POST /api/workouts` - Creates a new workout plan.
+
+Ensure that you secure your API endpoints and validate user inputs to prevent SQL injection and other security vulnerabilities.
