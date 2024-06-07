@@ -153,6 +153,8 @@ const LandingPage = () => {
         </section>
       </div>
 
+
+
       <footer className="footer">
         <div className="social-media">
           <i className="fab fa-facebook"></i>
@@ -163,6 +165,7 @@ const LandingPage = () => {
         </div>
         <p>&copy; 2024 FitnessFive. All rights reserved.</p>
       </footer>
+
     </div>
   );
 };
