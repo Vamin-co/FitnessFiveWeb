@@ -99,8 +99,8 @@ export function ProfilePageClient({
         <div className="flex min-h-screen bg-zinc-950">
             <Sidebar />
 
-            <main className="flex-1 pl-64">
-                <div className="p-8">
+            <main className="flex-1 pt-16 md:pt-0 md:pl-64">
+                <div className="p-4 md:p-8">
                     {/* Header */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}

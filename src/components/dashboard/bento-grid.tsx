@@ -20,9 +20,9 @@ export function BentoCard({
 }: BentoCardProps) {
     const colSpanClasses = {
         1: "col-span-1",
-        2: "col-span-1 md:col-span-2",
-        3: "col-span-1 md:col-span-2 lg:col-span-3",
-        4: "col-span-1 md:col-span-2 lg:col-span-4",
+        2: "col-span-1 sm:col-span-2",
+        3: "col-span-1 sm:col-span-2 lg:col-span-3",
+        4: "col-span-1 sm:col-span-2 lg:col-span-4",
     };
 
     const rowSpanClasses = {
@@ -41,7 +41,7 @@ export function BentoCard({
             }}
             whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
             className={cn(
-                "group relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm",
+                "group relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 md:p-6 backdrop-blur-sm",
                 "transition-colors duration-300 hover:border-zinc-700 hover:bg-zinc-900/80",
                 colSpanClasses[colSpan],
                 rowSpanClasses[rowSpan],
@@ -66,7 +66,7 @@ export function BentoGrid({ children, className }: BentoGridProps) {
     return (
         <div
             className={cn(
-                "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4",
+                "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4",
                 className
             )}
         >
@@ -74,3 +74,4 @@ export function BentoGrid({ children, className }: BentoGridProps) {
         </div>
     );
 }
+

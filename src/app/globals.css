@@ -45,3 +45,31 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Mobile-first touch targets */
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Improve tap highlight on mobile */
+    button, a {
+        -webkit-tap-highlight-color: rgba(34, 211, 238, 0.1);
+    }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Prevent layout shift from scrollbar */
+html {
+    scrollbar-gutter: stable;
+}
