@@ -1,0 +1,28 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import { getProfile, getWeightHistory, getDashboardStats } from "@/lib/data";
+import { ProfilePageClient } from "./profile-client";
+
+export default async function ProfilePage() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    const [profile, weightHistory, stats] = await Promise.all([
+        getProfile(),
+        getWeightHistory(),
+        getDashboardStats(),
+    ]);
+
+    return (
+        <ProfilePageClient
+            profile={profile}
+            weightHistory={weightHistory}
+            stats={stats}
+            userEmail={user.email || ""}
+        />
+    );
+}

@@ -1,0 +1,208 @@
+/* General styles */
+
+/* Reset margin and padding for the entire body */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: white;
+}
+
+/* Container styles */
+
+/* Full-width container for the about section with padding to account for the fixed header */
+.about-container {
+  width: 100%;
+  position: relative;
+  background: white;
+  padding-top: 164px; /* To account for fixed header height */
+}
+
+/* Header styles */
+
+/* Header styling with flexbox for layout */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f2f2f2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999; /* Ensure header stays on top */
+}
+
+/* Button styling inside header */
+.header button {
+  padding: 12px 24px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+/* Button hover effect */
+.header button:hover {
+  background-color: #666;
+}
+
+/* Header title styling */
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  background-color: #f2f2f2;
+}
+
+/* Navigation links inside header */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  align-items: center;
+  background-color: #f2f2f2;
+}
+
+/* Individual navigation link styling */
+.nav-links li a {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s; /* Smooth transition for hover effect */
+  background-color: #f2f2f2;
+}
+
+/* Navigation link hover effect */
+.nav-links li a:hover {
+  color: #666;
+}
+
+/* Profile Photo Header */
+
+/* Styling for profile photo container */
+.profile-photo-header {
+  width: 40px; /* Adjust the size as needed */
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* Font size for initials */
+  color: #ffffff; /* Text color for initials */
+  text-transform: uppercase; /* Ensure initials are uppercase */
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Ensure profile photo covers the container */
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Content styles */
+
+/* Flexbox layout for the about content */
+.about-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 50px 80px;
+}
+
+/* About section image styling */
+.about-image {
+  width: 508px;
+  height: 657px;
+  border-radius: 8px;
+  margin-top: -8vh; /* Adjust for visual alignment */
+}
+
+/* Container for about section text */
+.about-text-container {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: -8vh; /* Adjust for visual alignment */
+}
+
+/* About section title styling */
+.about-title {
+  color: black;
+  font-size: 64px;
+  font-weight: 700;
+  word-wrap: break-word; /* Ensure long words break correctly */
+}
+
+/* About section subtitle styling */
+.about-subtitle {
+  color: #828282;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 36px;
+  word-wrap: break-word; /* Ensure long words break correctly */
+}
+
+/* About section description styling */
+.about-description {
+  color: black;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 30px;
+  word-wrap: break-word; /* Ensure long words break correctly */
+}
+
+/* Footer styles */
+
+/* Flexbox layout for the about footer */
+.about-footer {
+  width: 100%;
+  padding: 40px 80px;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Allow items to wrap in smaller screens */
+}
+
+/* Footer links styling */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Individual footer link styling */
+.footer-link {
+  color: #454545;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-decoration: none;
+}
+
+/* Footer link hover effect */
+.footer-link:hover {
+  color: black;
+}
+
+/* Social media links styling */
+.social-links {
+  display: flex;
+  gap: 16px;
+}
+
+/* Social media icon styling */
+.footer-icon {
+  font-size: 24px;
+  color: #454545;
+}
+
+/* Social media icon hover effect */
+.footer-icon:hover {
+  color: black;
+}
