@@ -11,16 +11,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-    User, Ruler, Scale, Calendar, Target,
+    Ruler, Scale, Calendar, Target,
     Edit2, Save, Trophy, Flame, Dumbbell, TrendingDown, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { logWeight, updateProfile, signOut } from "@/lib/actions";
+import { updateProfile, signOut } from "@/lib/actions";
 import type { DashboardStats } from "@/types";
 
 interface ProfilePageClientProps {
     profile: {
         id: string;
+        username: string | null;
         firstName: string | null;
         lastName: string | null;
         height: number | null;
@@ -43,7 +44,6 @@ export function ProfilePageClient({
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isEditing, setIsEditing] = useState(false);
-    const [newWeight, setNewWeight] = useState("");
     const [formData, setFormData] = useState({
         firstName: profile?.firstName || "",
         lastName: profile?.lastName || "",
@@ -55,16 +55,6 @@ export function ProfilePageClient({
         const first = profile?.firstName?.charAt(0) || "U";
         const last = profile?.lastName?.charAt(0) || "";
         return `${first}${last}`.toUpperCase();
-    };
-
-    const handleLogWeight = () => {
-        if (!newWeight) return;
-
-        startTransition(async () => {
-            await logWeight(parseFloat(newWeight));
-            setNewWeight("");
-            router.refresh();
-        });
     };
 
     const handleSaveProfile = () => {
@@ -126,7 +116,10 @@ export function ProfilePageClient({
                                             <h2 className="text-2xl font-bold text-white">
                                                 {profile?.firstName || "User"} {profile?.lastName || ""}
                                             </h2>
-                                            <p className="text-zinc-400">{userEmail}</p>
+                                            {profile?.username && (
+                                                <p className="text-emerald-400 font-medium">@{profile.username}</p>
+                                            )}
+                                            <p className="text-zinc-400 text-sm">{userEmail}</p>
                                             <p className="mt-1 text-xs text-zinc-500">
                                                 Member since {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "Today"}
                                             </p>
@@ -156,24 +149,6 @@ export function ProfilePageClient({
                                             </Button>
                                         )}
                                     </div>
-                                </div>
-
-                                <Separator className="my-6 bg-zinc-800" />
-
-                                {/* Stats Summary */}
-                                <div className="grid grid-cols-4 gap-4">
-                                    {[
-                                        { label: "Workouts", value: stats.workoutsThisWeek, icon: Dumbbell, color: "text-cyan-400" },
-                                        { label: "Streak", value: `${stats.streak} days`, icon: Flame, color: "text-orange-400" },
-                                        { label: "Weight Lost", value: `${stats.weightChange} lbs`, icon: TrendingDown, color: "text-emerald-400" },
-                                        { label: "Calories", value: stats.caloriesBurnedThisWeek.toLocaleString(), icon: Target, color: "text-rose-400" },
-                                    ].map((stat) => (
-                                        <div key={stat.label} className="rounded-xl bg-zinc-800/50 p-4 text-center">
-                                            <stat.icon className={cn("mx-auto h-5 w-5 mb-2", stat.color)} />
-                                            <p className="text-lg font-bold text-white">{stat.value}</p>
-                                            <p className="text-xs text-zinc-500">{stat.label}</p>
-                                        </div>
-                                    ))}
                                 </div>
 
                                 <Separator className="my-6 bg-zinc-800" />
@@ -239,31 +214,7 @@ export function ProfilePageClient({
                                 </div>
                             </Card>
 
-                            {/* Log Weight */}
-                            <Card className="border-zinc-800 bg-zinc-900/50 p-6">
-                                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                                    <Scale className="h-5 w-5 text-emerald-400" />
-                                    Log Today&apos;s Weight
-                                </h3>
-                                <div className="flex gap-3">
-                                    <Input
-                                        type="number"
-                                        step="0.1"
-                                        value={newWeight}
-                                        onChange={(e) => setNewWeight(e.target.value)}
-                                        placeholder="Enter weight in lbs"
-                                        className="flex-1 bg-zinc-800 border-zinc-700"
-                                    />
-                                    <Button
-                                        onClick={handleLogWeight}
-                                        disabled={!newWeight || isPending}
-                                        className="gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600 disabled:opacity-50"
-                                    >
-                                        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                        Log Weight
-                                    </Button>
-                                </div>
-                            </Card>
+
 
                             {/* Sign Out */}
                             <Button

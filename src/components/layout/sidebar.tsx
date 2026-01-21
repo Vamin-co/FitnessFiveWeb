@@ -106,11 +106,10 @@ export function Sidebar() {
                         const isActive = pathname === item.href;
                         return (
                             <Link key={item.href} href={item.href}>
-                                <motion.div
-                                    whileHover={{ x: 4 }}
+                                <div
                                     className={cn(
-                                        "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors",
-                                        "min-h-[44px]", // Touch-friendly size
+                                        "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150",
+                                        "min-h-[44px] hover:translate-x-1",
                                         isActive
                                             ? "bg-zinc-800 text-white"
                                             : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
@@ -124,7 +123,7 @@ export function Sidebar() {
                                             className="ml-auto h-1.5 w-1.5 rounded-full bg-emerald-400"
                                         />
                                     )}
-                                </motion.div>
+                                </div>
                             </Link>
                         );
                     })}

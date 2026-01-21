@@ -4,14 +4,15 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Sidebar } from "@/components/layout/sidebar";
 import { BentoGrid, BentoCard } from "@/components/dashboard/bento-grid";
-import { WeightChart } from "@/components/charts/weight-chart";
-import { HeatmapChart } from "@/components/charts/heatmap-chart";
-import { RadarStatsChart } from "@/components/charts/radar-stats-chart";
-import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { DailyAgendaCard } from "@/components/dashboard/daily-agenda-card";
+import { WaterTracker } from "@/components/dashboard/water-tracker";
+import { BodyStatsCard } from "@/components/dashboard/body-stats-card";
+import { LogWeightCard } from "@/components/dashboard/log-weight-card";
+import { MotivationalQuote } from "@/components/dashboard/motivational-quote";
+import { UpcomingSchedule } from "@/components/dashboard/upcoming-schedule";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, ChartLine, TrendingUp, Dumbbell, Plus } from "lucide-react";
-import type { LeaderboardEntry, TodaysRoutine, DailyTask, HeatmapDay, PlayerStats } from "@/types";
+import { Flame, Dumbbell, Plus } from "lucide-react";
+import type { LeaderboardEntry, TodaysRoutine, DailyTask, HeatmapDay, Routine } from "@/types";
 
 interface DashboardContentProps {
     profile: {
@@ -19,34 +20,39 @@ interface DashboardContentProps {
         username: string | null;
         firstName: string | null;
         lastName: string | null;
+        weight: number | null;
+        height: number | null;
+        age: number | null;
+        goals: string[];
         streak: number;
     } | null;
     weightHistory: { date: string; weight: number }[];
     todaysRoutines: TodaysRoutine[];
     dailyTasks: DailyTask[];
     heatmapData: HeatmapDay[];
-    playerStats: PlayerStats;
     leaderboard: LeaderboardEntry[];
     streak: number;
     hasRoutines: boolean;
     today: string;
-    systemDate: string; // YYYY-MM-DD for debugging
+    systemDate: string;
     routineStartDates: { name: string; startDate: string; frequencyDays: number }[];
+    allRoutines: Routine[];
+    waterIntake: { total: number; target: number };
+    todayWeightLog: { logged: boolean; weight: number | null };
 }
 
 export function DashboardContent({
     profile,
-    weightHistory,
     todaysRoutines,
     dailyTasks,
-    heatmapData,
-    playerStats,
-    leaderboard,
     streak,
     hasRoutines,
     today,
     systemDate,
     routineStartDates,
+    allRoutines,
+    waterIntake,
+    todayWeightLog,
 }: DashboardContentProps) {
     const userName = profile?.username || profile?.firstName || "Champion";
 
@@ -58,6 +64,7 @@ export function DashboardContent({
         <div className="flex min-h-screen bg-zinc-950">
             <Sidebar />
 
+            {/* Main content: no left padding on mobile, pt-16 for mobile header */}
             <main className="flex-1 pt-16 md:pt-0 md:pl-64">
                 <div className="p-4 md:p-8">
                     {/* Header */}
@@ -113,25 +120,12 @@ export function DashboardContent({
                         </motion.div>
                     )}
 
-                    {/* Bento Grid - Player HUD */}
+                    {/* Main Dashboard Grid - 4 columns */}
                     <BentoGrid>
-                        {/* Streak Counter */}
-                        <BentoCard delay={0.1}>
-                            <div className="flex h-full flex-col items-center justify-center text-center">
-                                <motion.div
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                    className="mb-2 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500"
-                                >
-                                    <Flame className="h-8 w-8 text-white" />
-                                </motion.div>
-                                <p className="text-4xl font-bold text-white">{streak}</p>
-                                <p className="text-sm text-zinc-400">Day Streak</p>
-                            </div>
-                        </BentoCard>
+                        {/* Row 1: Today's Agenda (2x2) | Hydration (1x1) | Streaks (1x1) */}
 
-                        {/* Today's Agenda Card */}
-                        <BentoCard colSpan={2} delay={0.15} className="p-0 overflow-hidden">
+                        {/* Today's Agenda - 2 cols, 2 rows */}
+                        <BentoCard colSpan={2} rowSpan={2} delay={0.1} className="p-0 overflow-hidden">
                             <DailyAgendaCard
                                 dailyTasks={dailyTasks}
                                 todaysRoutines={todaysRoutines}
@@ -141,54 +135,60 @@ export function DashboardContent({
                             />
                         </BentoCard>
 
-                        {/* Player Stats Radar */}
+                        {/* Hydration - 1x1 */}
+                        <BentoCard delay={0.15}>
+                            <WaterTracker
+                                currentOz={waterIntake.total}
+                                targetOz={waterIntake.target}
+                            />
+                        </BentoCard>
+
+                        {/* Streak Counter - 1x1 */}
                         <BentoCard delay={0.2}>
-                            <div className="mb-2 flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-cyan-400" />
-                                <h2 className="text-lg font-semibold text-white">Your Build</h2>
-                            </div>
-                            <RadarStatsChart stats={playerStats} />
-                        </BentoCard>
-
-                        {/* Consistency Heatmap */}
-                        <BentoCard colSpan={3} delay={0.25}>
-                            <div className="mb-4 flex items-center gap-2">
-                                <ChartLine className="h-5 w-5 text-emerald-400" />
-                                <h2 className="text-lg font-semibold text-white">Consistency</h2>
-                            </div>
-                            <HeatmapChart data={heatmapData} />
-                        </BentoCard>
-
-                        {/* Weight Progress */}
-                        <BentoCard colSpan={2} rowSpan={1} delay={0.3} className="min-h-[250px]">
-                            <div className="mb-4 flex items-center gap-2">
-                                <ChartLine className="h-5 w-5 text-violet-400" />
-                                <h2 className="text-lg font-semibold text-white">Weight Trend</h2>
-                            </div>
-                            <div className="h-[calc(100%-40px)]">
-                                {weightHistory.length > 0 ? (
-                                    <WeightChart data={weightHistory} />
-                                ) : (
-                                    <div className="flex h-full items-center justify-center text-zinc-500">
-                                        <p>Log your weight to see trends</p>
-                                    </div>
-                                )}
+                            <div className="h-full flex flex-col items-center justify-center text-center">
+                                <motion.div
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500"
+                                >
+                                    <Flame className="h-7 w-7 text-white" />
+                                </motion.div>
+                                <p className="text-3xl font-bold text-white">{streak}</p>
+                                <p className="text-xs text-zinc-400">Day Streak</p>
                             </div>
                         </BentoCard>
 
-                        {/* Leaderboard */}
+                        {/* Row 2 (right side): Log Weight (1x1) | Body Stats (1x1) */}
+
+                        {/* Log Today's Weight - 1x1 */}
+                        <BentoCard delay={0.25}>
+                            <LogWeightCard
+                                lastWeight={profile?.weight ?? null}
+                                todayLogged={todayWeightLog.logged}
+                                todayWeight={todayWeightLog.weight}
+                            />
+                        </BentoCard>
+
+                        {/* Body Stats - 1x1 */}
+                        <BentoCard delay={0.3}>
+                            <BodyStatsCard
+                                weight={profile?.weight ?? null}
+                                height={profile?.height ?? null}
+                                age={profile?.age ?? null}
+                                goals={profile?.goals ?? []}
+                            />
+                        </BentoCard>
+
+                        {/* Row 3: Motivational Quote (2x1) | Upcoming Schedule (2x1) */}
+
+                        {/* Motivational Quote - 2 cols wide */}
                         <BentoCard colSpan={2} delay={0.35}>
-                            <div className="mb-4 flex items-center gap-2">
-                                <Trophy className="h-5 w-5 text-amber-400" />
-                                <h2 className="text-lg font-semibold text-white">Leaderboard</h2>
-                            </div>
-                            {leaderboard.length > 0 ? (
-                                <Leaderboard entries={leaderboard.slice(0, 5)} />
-                            ) : (
-                                <div className="flex h-32 items-center justify-center text-zinc-500">
-                                    <p>Complete tasks to join the leaderboard</p>
-                                </div>
-                            )}
+                            <MotivationalQuote />
+                        </BentoCard>
+
+                        {/* Upcoming Schedule - 2 cols wide, horizontal week view */}
+                        <BentoCard colSpan={2} delay={0.4}>
+                            <UpcomingSchedule routines={allRoutines} />
                         </BentoCard>
                     </BentoGrid>
                 </div>

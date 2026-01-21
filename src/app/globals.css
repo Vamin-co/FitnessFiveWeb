@@ -52,9 +52,10 @@ html {
         min-height: 44px;
         min-width: 44px;
     }
-    
+
     /* Improve tap highlight on mobile */
-    button, a {
+    button,
+    a {
         -webkit-tap-highlight-color: rgba(34, 211, 238, 0.1);
     }
 }
@@ -64,6 +65,7 @@ html {
     .safe-area-top {
         padding-top: env(safe-area-inset-top);
     }
+
     .safe-area-bottom {
         padding-bottom: env(safe-area-inset-bottom);
     }
@@ -72,4 +74,39 @@ html {
 /* Prevent layout shift from scrollbar */
 html {
     scrollbar-gutter: stable;
+}
+
+/* Performance: GPU-accelerated pulse animation */
+@keyframes pulse-gentle {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+}
+
+.animate-pulse-gentle {
+    animation: pulse-gentle 2s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* Reduced motion accessibility support */
+@media (prefers-reduced-motion: reduce) {
+    .animate-pulse-gentle {
+        animation: none;
+    }
+
+    /* Disable all transitions and animations for users who prefer reduced motion */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

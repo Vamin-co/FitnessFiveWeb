@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
     BedDouble, AlertTriangle, RefreshCw, Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toggleDailyTask, triggerTaskGeneration } from "@/lib/actions";
+import { completeDailyTask, triggerTaskGeneration } from "@/lib/actions";
 import type { DailyTask, Routine } from "@/types";
 
 interface DailyAgendaCardProps {
@@ -32,6 +32,8 @@ export function DailyAgendaCard({
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isGenerating, setIsGenerating] = useState(false);
+    const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
+    const [justCompletedIds, setJustCompletedIds] = useState<Set<string>>(new Set());
 
     const totalTasks = dailyTasks.length;
     const completedTasks = dailyTasks.filter(t => t.completed).length;
@@ -42,9 +44,16 @@ export function DailyAgendaCard({
     const isScheduledButMissing = hasRoutines && todaysRoutines.length > 0 && totalTasks === 0;
     const isScheduledAndReady = totalTasks > 0;
 
-    const handleToggleTask = (taskId: string) => {
+    const handleCompleteTask = (taskId: string, isAlreadyCompleted: boolean) => {
+        // Prevent clicking on already completed tasks
+        if (isAlreadyCompleted || completingTaskId) return;
+
+        setCompletingTaskId(taskId);
         startTransition(async () => {
-            await toggleDailyTask(taskId);
+            await completeDailyTask(taskId);
+            // Add to just completed for animation
+            setJustCompletedIds(prev => new Set([...prev, taskId]));
+            setCompletingTaskId(null);
             router.refresh();
         });
     };
@@ -99,49 +108,103 @@ export function DailyAgendaCard({
 
                     {/* Task list */}
                     <div className="space-y-2 max-h-[250px] overflow-y-auto">
-                        {dailyTasks.map((task) => (
-                            <button
-                                key={task.id}
-                                onClick={() => handleToggleTask(task.id)}
-                                disabled={isPending}
-                                className={cn(
-                                    "flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all",
-                                    task.completed
-                                        ? "bg-emerald-500/10 border border-emerald-500/20"
-                                        : "bg-zinc-800/50 border border-zinc-700 hover:border-zinc-600"
-                                )}
-                            >
-                                <div className={cn(
-                                    "flex h-6 w-6 items-center justify-center rounded-full border-2 flex-shrink-0 transition-all",
-                                    task.completed
-                                        ? "border-emerald-500 bg-emerald-500 text-white"
-                                        : "border-zinc-600 hover:border-emerald-500"
-                                )}>
-                                    {task.completed ? (
-                                        <Check className="h-3.5 w-3.5" />
-                                    ) : (
-                                        <Circle className="h-3.5 w-3.5 text-zinc-600" />
+                        {dailyTasks.map((task) => {
+                            const isCompleting = completingTaskId === task.id;
+                            const wasJustCompleted = justCompletedIds.has(task.id);
+                            const isCompleted = task.completed || wasJustCompleted;
+
+                            return (
+                                <motion.button
+                                    key={task.id}
+                                    onClick={() => handleCompleteTask(task.id, isCompleted)}
+                                    disabled={isPending || isCompleted}
+                                    whileTap={!isCompleted ? { scale: 0.98 } : undefined}
+                                    className={cn(
+                                        "flex w-full items-center gap-3 rounded-xl p-3 md:p-3 text-left transition-all select-none",
+                                        // Larger touch target on mobile
+                                        "min-h-[52px] touch-manipulation",
+                                        isCompleted
+                                            ? "bg-emerald-500/10 border border-emerald-500/20 cursor-default"
+                                            : "bg-zinc-800/50 border border-zinc-700 hover:border-emerald-500/50 hover:bg-zinc-800 active:bg-zinc-700/50 cursor-pointer"
                                     )}
-                                </div>
-                                <div className="flex-1 min-w-0">
+                                    aria-label={isCompleted ? `${task.name} - completed` : `Complete ${task.name}`}
+                                >
+                                    {/* Checkbox circle */}
+                                    <motion.div
+                                        className={cn(
+                                            "flex h-6 w-6 items-center justify-center rounded-full border-2 flex-shrink-0 transition-colors",
+                                            isCompleted
+                                                ? "border-emerald-500 bg-emerald-500 text-white"
+                                                : "border-zinc-600 group-hover:border-emerald-500"
+                                        )}
+                                        animate={isCompleting ? { scale: [1, 1.2, 1] } : undefined}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <AnimatePresence mode="wait">
+                                            {isCompleting ? (
+                                                <motion.div
+                                                    key="loading"
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                >
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+                                                </motion.div>
+                                            ) : isCompleted ? (
+                                                <motion.div
+                                                    key="check"
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                                                >
+                                                    <Check className="h-3.5 w-3.5" />
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div
+                                                    key="circle"
+                                                    initial={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                >
+                                                    <Circle className="h-3.5 w-3.5 text-zinc-600" />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
+
+                                    {/* Task name */}
+                                    <div className="flex-1 min-w-0">
+                                        <span className={cn(
+                                            "text-sm font-medium truncate block transition-all",
+                                            isCompleted ? "text-emerald-400 line-through opacity-75" : "text-white"
+                                        )}>
+                                            {task.name}
+                                        </span>
+                                    </div>
+
+                                    {/* Sets/reps info */}
                                     <span className={cn(
-                                        "text-sm font-medium truncate block",
-                                        task.completed ? "text-emerald-400 line-through" : "text-white"
+                                        "text-xs flex-shrink-0 transition-opacity",
+                                        isCompleted ? "text-zinc-600" : "text-zinc-500"
                                     )}>
-                                        {task.name}
+                                        {task.targetSets}×{task.targetReps}
+                                        {task.weight ? ` @ ${task.weight}lbs` : ""}
                                     </span>
-                                </div>
-                                <span className="text-xs text-zinc-500 flex-shrink-0">
-                                    {task.targetSets}×{task.targetReps}
-                                    {task.weight ? ` @ ${task.weight}lbs` : ""}
-                                </span>
-                                {task.completed && (
-                                    <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">
-                                        ✓
-                                    </Badge>
-                                )}
-                            </button>
-                        ))}
+
+                                    {/* Completed badge */}
+                                    {isCompleted && (
+                                        <motion.div
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ delay: 0.1, type: "spring", stiffness: 500, damping: 25 }}
+                                        >
+                                            <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">
+                                                ✓
+                                            </Badge>
+                                        </motion.div>
+                                    )}
+                                </motion.button>
+                            );
+                        })}
                     </div>
                 </motion.div>
             )}

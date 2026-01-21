@@ -7,11 +7,11 @@ import {
     getDailyTasks,
     generateDailyTasks,
     getHeatmapData,
-    getPlayerStats,
     getLeaderboard,
     calculateStreak,
     getRoutines
 } from "@/lib/data";
+import { getTodayWaterIntake } from "@/lib/actions";
 import { DashboardContent } from "./dashboard-content";
 
 export default async function DashboardPage() {
@@ -31,20 +31,20 @@ export default async function DashboardPage() {
         todaysRoutines,
         dailyTasks,
         heatmapData,
-        playerStats,
         leaderboard,
         streak,
-        allRoutines
+        allRoutines,
+        waterIntake
     ] = await Promise.all([
         getProfile(),
         getWeightHistory(),
         getTodaysRoutines(),
         getDailyTasks(),
         getHeatmapData(120), // 4 months of data
-        getPlayerStats(),
         getLeaderboard(),
         calculateStreak(),
         getRoutines(),
+        getTodayWaterIntake(),
     ]);
 
     // Format today's date
@@ -64,6 +64,14 @@ export default async function DashboardPage() {
         frequencyDays: r.frequencyDays,
     }));
 
+    // Check if weight was logged today
+    const todayDate = new Date().toISOString().split('T')[0];
+    const todayWeightEntry = weightHistory.find(w => w.date === todayDate);
+    const todayWeightLog = {
+        logged: !!todayWeightEntry,
+        weight: todayWeightEntry?.weight ?? null,
+    };
+
     return (
         <DashboardContent
             profile={profile}
@@ -71,13 +79,17 @@ export default async function DashboardPage() {
             todaysRoutines={todaysRoutines}
             dailyTasks={dailyTasks}
             heatmapData={heatmapData}
-            playerStats={playerStats}
             leaderboard={leaderboard}
             streak={streak}
             hasRoutines={allRoutines.length > 0}
             today={today}
             systemDate={systemDate}
             routineStartDates={routineStartDates}
+            allRoutines={allRoutines}
+            waterIntake={waterIntake}
+            todayWeightLog={todayWeightLog}
         />
     );
 }
+
+

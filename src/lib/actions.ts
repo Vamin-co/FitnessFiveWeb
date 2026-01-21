@@ -560,8 +560,8 @@ export async function updateExercise(
 // DAILY TASK ACTIONS
 // ============================================
 
-// Toggle a daily task completion
-export async function toggleDailyTask(taskId: string): Promise<{ success: boolean; completed?: boolean; error?: string }> {
+// Complete a daily task (one-way - cannot be unchecked)
+export async function completeDailyTask(taskId: string): Promise<{ success: boolean; completed?: boolean; alreadyCompleted?: boolean; error?: string }> {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -581,12 +581,15 @@ export async function toggleDailyTask(taskId: string): Promise<{ success: boolea
         return { success: false, error: 'Task not found' };
     }
 
-    const newCompleted = !task.completed;
+    // If already completed, don't do anything (one-way)
+    if (task.completed) {
+        return { success: true, completed: true, alreadyCompleted: true };
+    }
 
-    // Update the task
+    // Update the task to completed
     const { error } = await supabase
         .from('daily_tasks')
-        .update({ completed: newCompleted })
+        .update({ completed: true })
         .eq('id', taskId)
         .eq('user_id', user.id);
 
@@ -620,7 +623,12 @@ export async function toggleDailyTask(taskId: string): Promise<{ success: boolea
     revalidatePath('/routines');
     revalidatePath('/leaderboard');
 
-    return { success: true, completed: newCompleted };
+    return { success: true, completed: true };
+}
+
+// Legacy alias for backwards compatibility - now just completes the task
+export async function toggleDailyTask(taskId: string): Promise<{ success: boolean; completed?: boolean; error?: string }> {
+    return completeDailyTask(taskId);
 }
 
 // Manually trigger task generation (for debug/recovery)
@@ -648,4 +656,92 @@ export async function triggerTaskGeneration(): Promise<{ success: boolean; tasks
     revalidatePath('/routines');
 
     return { success: true, tasksCreated: count || 0 };
+}
+
+// ============================================
+// WATER TRACKING ACTIONS
+// ============================================
+
+// Add water intake
+export async function addWater(amountOz: number): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: 'Not authenticated' };
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const { error } = await supabase
+        .from('water_intake')
+        .insert({
+            user_id: user.id,
+            amount_oz: amountOz,
+            recorded_at: today,
+        });
+
+    if (error) {
+        return { success: false, error: error.message };
+    }
+
+    revalidatePath('/dashboard');
+
+    return { success: true };
+}
+
+// Get today's water intake total
+export async function getTodayWaterIntake(): Promise<{ total: number; target: number }> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { total: 0, target: 128 };
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get today's intake
+    const { data: intakeData } = await supabase
+        .from('water_intake')
+        .select('amount_oz')
+        .eq('user_id', user.id)
+        .eq('recorded_at', today);
+
+    const total = intakeData?.reduce((sum, entry) => sum + entry.amount_oz, 0) || 0;
+
+    // Get user's target
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('water_target_oz')
+        .eq('id', user.id)
+        .single();
+
+    const target = profile?.water_target_oz || 128;
+
+    return { total, target };
+}
+
+// Update water target
+export async function updateWaterTarget(targetOz: number): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: 'Not authenticated' };
+    }
+
+    const { error } = await supabase
+        .from('profiles')
+        .update({ water_target_oz: targetOz })
+        .eq('id', user.id);
+
+    if (error) {
+        return { success: false, error: error.message };
+    }
+
+    revalidatePath('/dashboard');
+    revalidatePath('/profile');
+
+    return { success: true };
 }

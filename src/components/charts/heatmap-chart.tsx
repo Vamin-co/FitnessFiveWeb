@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { HeatmapDay } from "@/types";
 
@@ -166,15 +165,12 @@ export function HeatmapChart({ data, className }: HeatmapChartProps) {
                             {weeks.map((week, weekIndex) => (
                                 <div key={weekIndex} className="flex flex-col gap-[2px]">
                                     {week.map((day, dayIndex) => (
-                                        <motion.div
+                                        <div
                                             key={`${weekIndex}-${dayIndex}`}
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ delay: weekIndex * 0.005 + dayIndex * 0.002 }}
                                             className={cn(
-                                                "h-[11px] w-[11px] rounded-sm transition-all cursor-default",
+                                                "h-[11px] w-[11px] rounded-sm cursor-default transition-transform duration-100",
                                                 getStatusColor(day.status),
-                                                day.date && "hover:ring-2 hover:ring-white/30"
+                                                day.date && "hover:ring-2 hover:ring-white/30 hover:scale-125"
                                             )}
                                             title={getTooltip(day)}
                                         />

@@ -11,6 +11,7 @@ export interface Profile {
     goals: string[];
     avatarUrl: string | null;
     streak: number;
+    waterTargetOz: number | null;
     createdAt: string;
     updatedAt: string;
 }
