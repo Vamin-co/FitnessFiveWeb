@@ -10,7 +10,7 @@ const authRoutes = ['/login', '/signup'];
 // Routes that should skip username check (onboarding itself)
 const skipUsernameCheck = ['/onboarding', '/auth/callback'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
     });

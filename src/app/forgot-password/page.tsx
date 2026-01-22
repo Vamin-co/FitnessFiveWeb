@@ -12,11 +12,30 @@ export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [emailError, setEmailError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    const validateEmail = (): boolean => {
+        if (!email.trim()) {
+            setEmailError("Email is required");
+            return false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setEmailError("Please enter a valid email address");
+            return false;
+        }
+        setEmailError(null);
+        return true;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        if (!validateEmail()) {
+            return;
+        }
+
         setIsLoading(true);
 
         const supabase = createClient();
@@ -33,6 +52,13 @@ export default function ForgotPasswordPage() {
 
         setSuccess(true);
         setIsLoading(false);
+    };
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+        if (emailError) {
+            setEmailError(null);
+        }
     };
 
     return (
@@ -112,7 +138,7 @@ export default function ForgotPasswordPage() {
                                 </div>
                             )}
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <form onSubmit={handleSubmit} noValidate className="space-y-4">
                                 <div>
                                     <label className="mb-1.5 block text-sm text-zinc-400">Email</label>
                                     <div className="relative">
@@ -120,12 +146,21 @@ export default function ForgotPasswordPage() {
                                         <Input
                                             type="email"
                                             value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            onChange={handleEmailChange}
                                             placeholder="you@example.com"
-                                            className="bg-zinc-800 border-zinc-700 pl-10"
-                                            required
+                                            className={`bg-zinc-800 border-zinc-700 pl-10 ${emailError ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                                         />
                                     </div>
+                                    {emailError && (
+                                        <motion.p
+                                            initial={{ opacity: 0, y: -4 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                                        >
+                                            <AlertCircle className="h-3 w-3" />
+                                            {emailError}
+                                        </motion.p>
+                                    )}
                                 </div>
 
                                 <Button
@@ -160,3 +195,4 @@ export default function ForgotPasswordPage() {
         </div>
     );
 }
+

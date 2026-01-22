@@ -17,11 +17,36 @@ function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
     const [isLoading, setIsLoading] = useState(false);
+
+    const validateForm = (): boolean => {
+        const errors: { email?: string; password?: string } = {};
+
+        // Email validation
+        if (!email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        // Password validation
+        if (!password) {
+            errors.password = "Password is required";
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        if (!validateForm()) {
+            return;
+        }
+
         setIsLoading(true);
 
         const supabase = createClient();
@@ -39,6 +64,21 @@ function LoginForm() {
 
         router.push(redirectTo);
         router.refresh();
+    };
+
+    // Clear field error when user starts typing
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+        if (fieldErrors.email) {
+            setFieldErrors(prev => ({ ...prev, email: undefined }));
+        }
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+        if (fieldErrors.password) {
+            setFieldErrors(prev => ({ ...prev, password: undefined }));
+        }
     };
 
     return (
@@ -73,7 +113,7 @@ function LoginForm() {
                     </div>
                 )}
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleLogin} noValidate className="space-y-4">
                     <div>
                         <label className="mb-1.5 block text-sm text-zinc-400">Email</label>
                         <div className="relative">
@@ -81,12 +121,21 @@ function LoginForm() {
                             <Input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={handleEmailChange}
                                 placeholder="you@example.com"
-                                className="bg-zinc-800 border-zinc-700 pl-10"
-                                required
+                                className={`bg-zinc-800 border-zinc-700 pl-10 ${fieldErrors.email ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                             />
                         </div>
+                        {fieldErrors.email && (
+                            <motion.p
+                                initial={{ opacity: 0, y: -4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                            >
+                                <AlertCircle className="h-3 w-3" />
+                                {fieldErrors.email}
+                            </motion.p>
+                        )}
                     </div>
 
                     <div>
@@ -96,12 +145,21 @@ function LoginForm() {
                             <Input
                                 type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={handlePasswordChange}
                                 placeholder="••••••••"
-                                className="bg-zinc-800 border-zinc-700 pl-10"
-                                required
+                                className={`bg-zinc-800 border-zinc-700 pl-10 ${fieldErrors.password ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                             />
                         </div>
+                        {fieldErrors.password && (
+                            <motion.p
+                                initial={{ opacity: 0, y: -4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                            >
+                                <AlertCircle className="h-3 w-3" />
+                                {fieldErrors.password}
+                            </motion.p>
+                        )}
                     </div>
 
                     <Button

@@ -19,12 +19,48 @@ export default function SignupPage() {
         password: "",
     });
     const [error, setError] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<{
+        firstName?: string;
+        email?: string;
+        password?: string;
+    }>({});
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    const validateForm = (): boolean => {
+        const errors: { firstName?: string; email?: string; password?: string } = {};
+
+        // First name validation
+        if (!formData.firstName.trim()) {
+            errors.firstName = "First name is required";
+        }
+
+        // Email validation
+        if (!formData.email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            errors.email = "Please enter a valid email address";
+        }
+
+        // Password validation
+        if (!formData.password) {
+            errors.password = "Password is required";
+        } else if (formData.password.length < 6) {
+            errors.password = "Password must be at least 6 characters";
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        if (!validateForm()) {
+            return;
+        }
+
         setIsLoading(true);
 
         const supabase = createClient();
@@ -68,6 +104,14 @@ export default function SignupPage() {
         // If auto-confirmed, redirect to onboarding
         router.push("/onboarding");
         router.refresh();
+    };
+
+    const updateField = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        // Clear field error when user starts typing
+        if (fieldErrors[field as keyof typeof fieldErrors]) {
+            setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+        }
     };
 
     if (success) {
@@ -137,7 +181,7 @@ export default function SignupPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSignup} className="space-y-4">
+                    <form onSubmit={handleSignup} noValidate className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="mb-1.5 block text-sm text-zinc-400">First Name</label>
@@ -146,19 +190,28 @@ export default function SignupPage() {
                                     <Input
                                         type="text"
                                         value={formData.firstName}
-                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                        onChange={(e) => updateField("firstName", e.target.value)}
                                         placeholder="John"
-                                        className="bg-zinc-800 border-zinc-700 pl-10"
-                                        required
+                                        className={`bg-zinc-800 border-zinc-700 pl-10 ${fieldErrors.firstName ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                                     />
                                 </div>
+                                {fieldErrors.firstName && (
+                                    <motion.p
+                                        initial={{ opacity: 0, y: -4 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                                    >
+                                        <AlertCircle className="h-3 w-3" />
+                                        {fieldErrors.firstName}
+                                    </motion.p>
+                                )}
                             </div>
                             <div>
                                 <label className="mb-1.5 block text-sm text-zinc-400">Last Name</label>
                                 <Input
                                     type="text"
                                     value={formData.lastName}
-                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                    onChange={(e) => updateField("lastName", e.target.value)}
                                     placeholder="Doe"
                                     className="bg-zinc-800 border-zinc-700"
                                 />
@@ -172,12 +225,21 @@ export default function SignupPage() {
                                 <Input
                                     type="email"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    onChange={(e) => updateField("email", e.target.value)}
                                     placeholder="you@example.com"
-                                    className="bg-zinc-800 border-zinc-700 pl-10"
-                                    required
+                                    className={`bg-zinc-800 border-zinc-700 pl-10 ${fieldErrors.email ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                                 />
                             </div>
+                            {fieldErrors.email && (
+                                <motion.p
+                                    initial={{ opacity: 0, y: -4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                                >
+                                    <AlertCircle className="h-3 w-3" />
+                                    {fieldErrors.email}
+                                </motion.p>
+                            )}
                         </div>
 
                         <div>
@@ -187,14 +249,23 @@ export default function SignupPage() {
                                 <Input
                                     type="password"
                                     value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    onChange={(e) => updateField("password", e.target.value)}
                                     placeholder="••••••••"
-                                    className="bg-zinc-800 border-zinc-700 pl-10"
-                                    minLength={6}
-                                    required
+                                    className={`bg-zinc-800 border-zinc-700 pl-10 ${fieldErrors.password ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}`}
                                 />
                             </div>
-                            <p className="mt-1 text-xs text-zinc-500">Minimum 6 characters</p>
+                            {fieldErrors.password ? (
+                                <motion.p
+                                    initial={{ opacity: 0, y: -4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-1.5 flex items-center gap-1 text-xs text-red-400"
+                                >
+                                    <AlertCircle className="h-3 w-3" />
+                                    {fieldErrors.password}
+                                </motion.p>
+                            ) : (
+                                <p className="mt-1 text-xs text-zinc-500">Minimum 6 characters</p>
+                            )}
                         </div>
 
                         <Button
@@ -218,3 +289,4 @@ export default function SignupPage() {
         </div>
     );
 }
+

@@ -105,7 +105,7 @@ function ResetPasswordForm() {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} noValidate className="space-y-4">
                             <div>
                                 <label className="mb-1.5 block text-sm text-zinc-400">New Password</label>
                                 <div className="relative">
@@ -116,8 +116,6 @@ function ResetPasswordForm() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
                                         className="bg-zinc-800 border-zinc-700 pl-10 pr-10"
-                                        required
-                                        minLength={6}
                                     />
                                     <button
                                         type="button"
@@ -140,7 +138,6 @@ function ResetPasswordForm() {
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         placeholder="••••••••"
                                         className="bg-zinc-800 border-zinc-700 pl-10"
-                                        required
                                     />
                                 </div>
                             </div>
