@@ -1,9 +1,36 @@
 'use server';
 
+/**
+ * @fileoverview Server Actions for FitnessFive
+ * 
+ * This module contains all server-side mutations for the application.
+ * Server Actions are called from client components to modify data.
+ * All actions verify authentication before proceeding and return
+ * standardized response objects.
+ * 
+ * @module lib/actions
+ * @see {@link https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations}
+ */
+
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+// ============================================
+// WORKOUT ACTIONS
+// ============================================
+
+/**
+ * Creates a new workout with its associated exercises.
+ * Inserts workout record first, then bulk-inserts all exercises.
+ * 
+ * @param formData - The workout data to create
+ * @param formData.title - The workout title
+ * @param formData.description - Optional workout description
+ * @param formData.exercises - Array of exercises to include
+ * @returns Object with `success` and `workoutId` on success, or `error` on failure
+ */
 // Create a new workout with exercises
+
 export async function createWorkout(formData: {
     title: string;
     description?: string;
@@ -62,7 +89,13 @@ export async function createWorkout(formData: {
     return { success: true, workoutId: workout.id };
 }
 
-// Delete a workout
+/**
+ * Deletes a workout and all associated exercises.
+ * Uses cascade delete via database foreign key constraints.
+ * 
+ * @param workoutId - The UUID of the workout to delete
+ * @returns Object with `success: true` on success, or `error` on failure
+ */
 export async function deleteWorkout(workoutId: string) {
     const supabase = await createClient();
 
@@ -87,7 +120,15 @@ export async function deleteWorkout(workoutId: string) {
     return { success: true };
 }
 
-// Complete a workout
+/**
+ * Marks a workout as completed with duration and calorie data.
+ * Also increments the user's streak count.
+ * 
+ * @param workoutId - The UUID of the workout to complete
+ * @param duration - Duration of the workout in minutes
+ * @param caloriesBurned - Estimated calories burned
+ * @returns Object with `success: true` on success, or `error` on failure
+ */
 export async function completeWorkout(workoutId: string, duration: number, caloriesBurned: number) {
     const supabase = await createClient();
 
@@ -133,7 +174,16 @@ export async function completeWorkout(workoutId: string, duration: number, calor
     return { success: true };
 }
 
-// Log weight
+// ============================================
+// PROFILE ACTIONS
+// ============================================
+
+/**
+ * Logs a weight entry and updates the user's current weight in profile.
+ * 
+ * @param weight - The weight to log in pounds
+ * @returns Object with `success: true` on success, or `error` on failure
+ */
 export async function logWeight(weight: number) {
     const supabase = await createClient();
 
@@ -165,7 +215,18 @@ export async function logWeight(weight: number) {
     return { success: true };
 }
 
-// Update profile
+/**
+ * Updates the authenticated user's profile information.
+ * Only provided fields are updated; undefined fields are ignored.
+ * 
+ * @param formData - Object containing profile fields to update
+ * @param formData.firstName - Optional first name
+ * @param formData.lastName - Optional last name
+ * @param formData.height - Optional height in inches
+ * @param formData.age - Optional age in years
+ * @param formData.goals - Optional array of fitness goals
+ * @returns Object with `success: true` on success, or `error` on failure
+ */
 export async function updateProfile(formData: {
     firstName?: string;
     lastName?: string;
@@ -203,7 +264,10 @@ export async function updateProfile(formData: {
     return { success: true };
 }
 
-// Sign out
+/**
+ * Signs out the current user and clears their session.
+ * Invalidates the root layout to refresh auth state.
+ */
 export async function signOut() {
     const supabase = await createClient();
     await supabase.auth.signOut();
@@ -608,8 +672,23 @@ export async function completeDailyTask(taskId: string): Promise<{ success: bool
 
     const allComplete = allTasks && allTasks.every(t => t.completed);
 
-    // If all tasks complete, update streak
+    // If all tasks complete, register the routine completion and update streak
     if (allComplete) {
+        // Insert into routine_completions - this is what calculateStreak looks at!
+        // The unique constraint (routine_id, completed_date) prevents duplicates
+        const { error: completionError } = await supabase
+            .from('routine_completions')
+            .upsert({
+                routine_id: task.routine_id,
+                user_id: user.id,
+                completed_date: today,
+            }, { onConflict: 'routine_id,completed_date' });
+
+        if (completionError) {
+            console.error('Error inserting routine completion:', completionError);
+        }
+
+        // Now recalculate streak (it will find the new completion record)
         const { calculateStreak } = await import('./data');
         const newStreak = await calculateStreak();
 

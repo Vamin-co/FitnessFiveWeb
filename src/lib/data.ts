@@ -1,5 +1,27 @@
+/**
+ * @fileoverview Data Fetching Functions for FitnessFive
+ * 
+ * This module contains all server-side data fetching functions.
+ * These functions are called from Server Components to retrieve data
+ * from Supabase. All functions verify authentication before fetching
+ * and return type-safe data structures.
+ * 
+ * @module lib/data
+ */
+
 import { createClient } from '@/utils/supabase/server';
 import type { DashboardStats } from '@/types';
+
+// ============================================
+// PROFILE & USER DATA
+// ============================================
+
+/**
+ * Fetches the authenticated user's profile data.
+ * Transforms database column names from snake_case to camelCase.
+ * 
+ * @returns The user's profile or null if not authenticated
+ */
 
 // Get the currently authenticated user's profile
 export async function getProfile() {

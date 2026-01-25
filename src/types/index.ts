@@ -1,37 +1,87 @@
-// Core Data Types (matching Supabase schema)
+/**
+ * @fileoverview TypeScript Type Definitions for FitnessFive
+ * 
+ * This module contains all TypeScript interfaces and types used throughout
+ * the application. Types are organized by feature area and match the
+ * Supabase database schema with camelCase property names.
+ * 
+ * @module types
+ */
 
+// ============================================
+// CORE USER TYPES
+// ============================================
+
+/**
+ * User profile data extending Supabase auth.users.
+ * Created automatically via database trigger on signup.
+ */
 export interface Profile {
+    /** UUID matching auth.users.id */
     id: string;
+    /** Unique username, set during onboarding */
     username: string | null;
+    /** User's first name */
     firstName: string | null;
+    /** User's last name */
     lastName: string | null;
+    /** Current weight in pounds */
     weight: number | null;
+    /** Height in inches */
     height: number | null;
+    /** Age in years */
     age: number | null;
+    /** Array of fitness goal strings */
     goals: string[];
+    /** URL to avatar image */
     avatarUrl: string | null;
+    /** Current workout streak count */
     streak: number;
+    /** Daily water intake target in ounces */
     waterTargetOz: number | null;
+    /** Account creation timestamp */
     createdAt: string;
+    /** Last profile update timestamp */
     updatedAt: string;
 }
 
-// Gamification Types
+// ============================================
+// GAMIFICATION TYPES
+// ============================================
+
+/**
+ * Recurring workout routine with scheduling configuration.
+ * Routines generate daily tasks based on their frequency.
+ */
 export interface Routine {
+    /** UUID of the routine */
     id: string;
+    /** User who owns this routine */
     userId: string;
+    /** Display name of the routine */
     name: string;
+    /** Optional description */
     description: string | null;
-    frequencyDays: number; // Every N days
-    startDate: string; // ISO date string
+    /** Repeat every N days (1 = daily, 7 = weekly) */
+    frequencyDays: number;
+    /** Start date for scheduling (ISO date string) */
+    startDate: string;
+    /** Whether routine is currently active */
     isActive: boolean;
+    /** When routine was created */
     createdAt: string;
-    workoutId: string | null; // Link to existing workout
-    workout?: Workout | null; // The linked workout with exercises
-    exercises?: RoutineExercise[]; // Legacy: Template exercises (deprecated)
+    /** Optional link to a workout template */
+    workoutId: string | null;
+    /** The linked workout with its exercises (populated on fetch) */
+    workout?: Workout | null;
+    /** @deprecated Legacy template exercises - use workout.exercises instead */
+    exercises?: RoutineExercise[];
 }
 
-// Exercise Template (stored in routine_exercises)
+/**
+ * Exercise template stored in a routine.
+ * @deprecated Use workout exercises via routine.workout instead
+ */
 export interface RoutineExercise {
     id: string;
     routineId: string;
