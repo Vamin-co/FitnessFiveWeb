@@ -1,8 +1,6 @@
 @import "tailwindcss";
 
 /* ========== Design System: FitnessFive ========== */
-/* Style: Dark Mode (OLED) | Fonts: Barlow Condensed / Barlow */
-/* CTA: #22C55E | Background: #09090b | Text: #F8FAFC */
 /* Fonts loaded via next/font/google in layout.tsx */
 
 :root {
@@ -11,15 +9,12 @@
     --accent-emerald: #34d399;
     --accent-cyan: #22d3ee;
     --cta-green: #22C55E;
-    --grain-opacity: 0.08;
-    --font-heading: var(--font-barlow-condensed), var(--font-geist-sans), system-ui, sans-serif;
-    --font-body: var(--font-barlow), var(--font-geist-sans), system-ui, sans-serif;
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-body);
+    font-family: var(--font-barlow), var(--font-geist-sans), system-ui, sans-serif;
 }
 
 /* Custom scrollbar for dark theme */
@@ -55,6 +50,7 @@ body {
 /* Smooth scrolling */
 html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
 }
 
 /* Mobile-first touch targets */
@@ -81,333 +77,6 @@ html {
     }
 }
 
-/* Prevent layout shift from scrollbar */
-html {
-    scrollbar-gutter: stable;
-}
-
-/* ========== Scroll Progress Bar ========== */
-.scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
-    z-index: 100;
-    transform-origin: 0%;
-}
-
-/* ========== Halide Topo Hero ========== */
-.halide-hero {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--background);
-}
-
-.halide-grain {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 60;
-    opacity: var(--grain-opacity);
-    filter: url(#grain);
-}
-
-.halide-viewport {
-    perspective: 2000px;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.halide-canvas {
-    position: relative;
-    width: 700px;
-    height: 450px;
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.halide-layer {
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(52, 211, 153, 0.08);
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.4s ease;
-    overflow: hidden;
-}
-
-.halide-layer-1 {
-    border-radius: 12px;
-}
-
-.halide-layer-2 {
-    background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(34, 211, 238, 0.05));
-    opacity: 0.5;
-    mix-blend-mode: screen;
-}
-
-.halide-layer-3 {
-    background: radial-gradient(ellipse at 30% 50%, rgba(52, 211, 153, 0.12), transparent 70%);
-    opacity: 0.3;
-    mix-blend-mode: overlay;
-}
-
-.halide-contours {
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    background-image: repeating-radial-gradient(circle at 50% 50%,
-            transparent 0,
-            transparent 45px,
-            rgba(52, 211, 153, 0.04) 46px,
-            transparent 47px);
-    transform: translateZ(100px);
-    pointer-events: none;
-}
-
-/* Interface overlay */
-.halide-interface {
-    position: absolute;
-    inset: 0;
-    padding: 2rem 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.halide-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.halide-coordinates {
-    font-family: var(--font-heading);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.35);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.halide-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--accent-emerald);
-    opacity: 0.6;
-}
-
-.halide-focal {
-    font-family: monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    color: rgba(52, 211, 153, 0.5);
-}
-
-.halide-separator {
-    margin: 0 0.3rem;
-    opacity: 0.3;
-}
-
-/* Title */
-.halide-title-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 1;
-    padding: 0 1rem;
-    mix-blend-mode: difference;
-}
-
-.halide-title {
-    font-family: var(--font-heading);
-    font-size: clamp(3rem, 9vw, 9rem);
-    font-weight: 800;
-    line-height: 0.88;
-    letter-spacing: -0.03em;
-    color: #fff;
-}
-
-.halide-title-line {
-    display: block;
-}
-
-.halide-title-accent {
-    background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.halide-subtitle {
-    margin-top: 1.5rem;
-    font-family: var(--font-body);
-    font-size: clamp(0.9rem, 1.5vw, 1.15rem);
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.02em;
-}
-
-/* Bottom bar */
-.halide-bottombar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.halide-archive {
-    font-family: monospace;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.3);
-    letter-spacing: 0.05em;
-}
-
-.halide-archive-label {
-    margin-bottom: 0.25rem;
-}
-
-.halide-archive-desc {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.2);
-}
-
-.halide-cta {
-    pointer-events: auto;
-    background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
-    color: #000;
-    padding: 0.85rem 1.8rem;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    clip-path: polygon(0 0, 100% 0, 100% 65%, 88% 100%, 0 100%);
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.halide-cta:hover {
-    background: var(--cta-green);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
-}
-
-/* Scroll hint */
-.halide-scroll-hint {
-    position: absolute;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1px;
-    height: 50px;
-    background: linear-gradient(to bottom, var(--accent-emerald), transparent);
-    animation: hint-flow 2.5s infinite ease-in-out;
-    z-index: 10;
-}
-
-@keyframes hint-flow {
-
-    0%,
-    100% {
-        transform: translateX(-50%) scaleY(0);
-        transform-origin: top;
-    }
-
-    50% {
-        transform: translateX(-50%) scaleY(1);
-        transform-origin: top;
-    }
-
-    51% {
-        transform: translateX(-50%) scaleY(1);
-        transform-origin: bottom;
-    }
-}
-
-/* Mobile: disable 3D, simplify */
-@media (max-width: 767px) {
-    .halide-canvas {
-        width: 90vw;
-        height: 280px;
-        transform: rotateX(0deg) rotateZ(0deg) scale(1) !important;
-        transition: none !important;
-    }
-
-    .halide-layer {
-        transition: none !important;
-    }
-
-    .halide-contours {
-        display: none;
-    }
-
-    .halide-interface {
-        padding: 1.5rem;
-    }
-
-    .halide-title {
-        font-size: clamp(2.5rem, 12vw, 4.5rem);
-    }
-
-    .halide-bottombar {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .halide-topbar {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-}
-
-/* ========== Reduced Motion ========== */
-@media (prefers-reduced-motion: reduce) {
-    .halide-scroll-hint {
-        animation: none;
-        opacity: 0.3;
-    }
-
-    .halide-canvas {
-        transition: none !important;
-    }
-
-    .halide-layer {
-        transition: none !important;
-    }
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
 /* ========== Landing Page Utilities ========== */
 
 /* Glassmorphism effect for product frames */
@@ -423,26 +92,6 @@ html {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Floating navigation */
-.floating-nav {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    right: 1rem;
-    z-index: 50;
-    background: rgba(9, 9, 11, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-}
-
-.floating-nav.scrolled {
-    background: rgba(9, 9, 11, 0.9);
-    border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Gradient text utility */
@@ -473,4 +122,17 @@ html {
 .gpu-accelerate {
     transform: translateZ(0);
     will-change: transform, opacity;
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

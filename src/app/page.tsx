@@ -1,39 +1,38 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
+  Activity,
   Shield,
   Lock,
   Eye,
   Flame,
   Droplets,
-  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import HalideTopoHero from "@/components/landing/halide-topo-hero";
 
 export default function HomePage() {
-  const [navScrolled, setNavScrolled] = useState(false);
-  const pageRef = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Scroll progress for the progress bar
-  const { scrollYProgress } = useScroll();
+  // Parallax for hero dashboard
+  const { scrollY } = useScroll();
+  const dashboardY = useTransform(scrollY, [0, 600], [0, 120]);
+  const dashboardScale = useTransform(scrollY, [0, 600], [1, 0.92]);
+  const dashboardOpacity = useTransform(scrollY, [0, 500], [1, 0.3]);
 
-  // Nav blur on scroll
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    setNavScrolled(latest > 0.02);
-  });
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  // Stagger animation variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -41,40 +40,36 @@ export default function HomePage() {
     },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
   return (
-    <div ref={pageRef} className="relative min-h-screen bg-zinc-950">
-      {/* Scroll progress bar */}
-      <motion.div
-        className="scroll-progress"
-        style={{ scaleX: scrollYProgress }}
-      />
+    <div className="relative min-h-screen overflow-hidden bg-zinc-950">
+      {/* Background gradient orbs */}
+      <div className="pointer-events-none fixed -left-40 top-0 h-[600px] w-[600px] rounded-full bg-emerald-500/8 blur-[150px]" />
+      <div className="pointer-events-none fixed -right-40 bottom-0 h-[600px] w-[600px] rounded-full bg-cyan-500/8 blur-[150px]" />
 
-      {/* Floating Navigation */}
+      {/* ========== NAVIGATION — seamless, transparent ========== */}
       <nav
-        className={`floating-nav flex items-center justify-between px-6 py-3 ${navScrolled ? "scrolled" : ""}`}
+        className={`sticky top-0 z-50 flex items-center justify-between px-6 py-4 transition-all duration-300 lg:px-12 ${scrolled
+          ? "bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50"
+          : "bg-transparent"
+          }`}
       >
         <Link
           href="/"
-          className="flex items-center gap-2 cursor-pointer"
+          className="cursor-pointer"
           aria-label="FitnessFive Home"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 font-bold text-white text-sm shadow-lg">
-            F5
-          </div>
-          <span
-            className="text-lg font-semibold tracking-tight text-white"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            FitnessFive
+          <span className="text-xl font-semibold tracking-tight text-white">
+            Fitness
+            <span className="gradient-text">Five</span>
           </span>
         </Link>
         <div className="flex items-center gap-3">
@@ -94,11 +89,86 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ========== HERO: Halide Topo 3D Parallax ========== */}
-      <HalideTopoHero />
+      {/* ========== HERO SECTION ========== */}
+      <section className="relative mx-auto max-w-6xl px-6 pb-20 pt-16 lg:pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="text-center"
+        >
+          {/* Badge */}
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-sm text-zinc-400">
+            <Activity className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+            <span>Pro-grade fitness tracking</span>
+          </div>
 
-      {/* ========== FEATURES - Visual demos with scroll animations ========== */}
-      <section className="relative py-32 lg:py-40">
+          {/* Headline */}
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+            Track Your Progress.
+            <br />
+            <span className="gradient-text">Crush Your Goals.</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400 lg:text-xl">
+            A beautifully designed dashboard that makes tracking your fitness
+            journey simple, motivating, and actually enjoyable.
+          </p>
+
+          {/* CTAs */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link href="/signup">
+              <Button
+                size="lg"
+                className="cursor-pointer gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 text-white shadow-lg transition-all duration-200 hover:from-emerald-600 hover:to-cyan-600 hover:shadow-emerald-500/20"
+              >
+                Start Free
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="cursor-pointer border-zinc-700 text-zinc-300 transition-colors duration-200 hover:border-zinc-600 hover:bg-zinc-800/50 hover:text-white"
+              onClick={() => {
+                document
+                  .getElementById("features")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              See How It Works
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Product Screenshot with parallax */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+          style={{
+            y: dashboardY,
+            scale: dashboardScale,
+            opacity: dashboardOpacity,
+          }}
+          className="relative mx-auto mt-16 max-w-5xl lg:mt-20"
+        >
+          <div className="product-shadow overflow-hidden rounded-xl border border-zinc-800">
+            <Image
+              src="/images/dashboard-preview-macView.png"
+              alt="FitnessFive Dashboard"
+              width={1920}
+              height={1080}
+              className="w-full"
+              priority
+            />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ========== FEATURES — Visual cards with scroll animations ========== */}
+      <section id="features" className="relative py-32 lg:py-40">
         <div className="mx-auto max-w-6xl px-6">
           {/* Section header */}
           <motion.div
@@ -111,7 +181,6 @@ export default function HomePage() {
             <motion.h2
               variants={itemVariants}
               className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl"
-              style={{ fontFamily: "var(--font-heading)" }}
             >
               Everything you need
             </motion.h2>
@@ -159,15 +228,12 @@ export default function HomePage() {
                   </motion.div>
                 ))}
               </motion.div>
-              <p
-                className="mt-6 text-center text-sm font-medium text-zinc-300"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
+              <p className="mt-6 text-center text-sm font-medium text-zinc-300">
                 Daily Overview
               </p>
             </motion.div>
 
-            {/* Feature 2: Streak Counter (no infinite animation per UX #12) */}
+            {/* Feature 2: Streak Counter (scroll-triggered, no infinite animation) */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -180,10 +246,7 @@ export default function HomePage() {
                   initial={{ scale: 0.8, opacity: 0 }}
                   whileInView={{ scale: 1, opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{
-                    duration: 0.8,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
                   className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-500"
                 >
                   <Flame className="h-14 w-14 text-white" aria-hidden="true" />
@@ -205,7 +268,6 @@ export default function HomePage() {
               <motion.p
                 variants={itemVariants}
                 className="mt-8 text-center text-sm font-medium text-zinc-300"
-                style={{ fontFamily: "var(--font-heading)" }}
               >
                 Stay Consistent
               </motion.p>
@@ -229,7 +291,7 @@ export default function HomePage() {
                     transition={{
                       duration: 0.8,
                       delay: i * 0.1,
-                      ease: [0.22, 1, 0.36, 1],
+                      ease: "easeOut",
                     }}
                     className="flex-1 rounded-t-md bg-gradient-to-t from-emerald-600 to-cyan-500"
                   />
@@ -240,10 +302,7 @@ export default function HomePage() {
                   <span key={i}>{d}</span>
                 ))}
               </div>
-              <p
-                className="mt-6 text-center text-sm font-medium text-zinc-300"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
+              <p className="mt-6 text-center text-sm font-medium text-zinc-300">
                 Track Progress
               </p>
             </motion.div>
@@ -264,7 +323,6 @@ export default function HomePage() {
             <motion.h3
               variants={itemVariants}
               className="text-2xl font-bold text-white sm:text-3xl"
-              style={{ fontFamily: "var(--font-heading)" }}
             >
               Your data stays <span className="gradient-text">yours</span>
             </motion.h3>
@@ -293,19 +351,14 @@ export default function HomePage() {
                     aria-hidden="true"
                   />
                 </div>
-                <p
-                  className="mt-3 font-medium text-white"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
-                  {item.title}
-                </p>
+                <p className="mt-3 font-medium text-white">{item.title}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ========== CTA ========== */}
+      {/* ========== CTA SECTION ========== */}
       <section className="relative py-32 lg:py-40">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-[300px] w-[300px] rounded-full bg-emerald-500/10 blur-[100px]" />
@@ -317,12 +370,15 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           className="relative mx-auto max-w-3xl px-6 text-center"
         >
-          <h2
-            className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            Start your journey
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Ready to transform your
+            <br />
+            <span className="gradient-text">fitness journey?</span>
           </h2>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-zinc-400">
+            Join FitnessFive today and start building habits that last.
+            It&apos;s free to get started.
+          </p>
           <div className="mt-10">
             <Link href="/signup">
               <Button
@@ -342,13 +398,12 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
           <Link
             href="/"
-            className="flex items-center gap-2 cursor-pointer"
+            className="cursor-pointer"
             aria-label="FitnessFive Home"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 text-sm font-bold text-white">
-              F5
-            </div>
-            <span className="font-semibold text-white">FitnessFive</span>
+            <span className="font-semibold text-white">
+              Fitness<span className="gradient-text">Five</span>
+            </span>
           </Link>
           <div className="flex flex-wrap justify-center gap-6 text-sm text-zinc-500">
             <Link
@@ -364,7 +419,7 @@ export default function HomePage() {
               Terms
             </Link>
           </div>
-          <p className="text-sm text-zinc-500">2026 FitnessFive</p>
+          <p className="text-sm text-zinc-500">© 2026 FitnessFive</p>
         </div>
       </footer>
     </div>
