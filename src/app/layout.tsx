@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Barlow, Barlow_Condensed } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,21 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const barlow = Barlow({
-  variable: "--font-barlow",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow-condensed",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
   title: "FitnessFive | Pro Fitness Tracking",
-  description: "The most advanced activity tracking platform. Precision metrics, beautiful visualization, and privacy by design.",
+  description:
+    "The most advanced activity tracking platform. Precision metrics, beautiful visualization, and privacy by design.",
 };
 
 export default function RootLayout({
@@ -38,11 +34,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${barlow.variable} ${barlowCondensed.variable} antialiased bg-zinc-950 text-zinc-100`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased bg-zinc-950 text-zinc-100`}
       >
         {children}
       </body>
     </html>
   );
 }
-
