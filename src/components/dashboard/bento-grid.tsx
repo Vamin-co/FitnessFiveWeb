@@ -40,7 +40,7 @@ export function BentoCard({
                 ease: [0.25, 0.1, 0.25, 1],
             }}
             className={cn(
-                "group relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 md:p-6",
+                "group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 md:p-6",
                 "transition-all duration-200 hover:scale-[1.02] hover:border-zinc-700 hover:bg-zinc-900/80",
                 colSpanClasses[colSpan],
                 rowSpanClasses[rowSpan],
@@ -51,7 +51,7 @@ export function BentoCard({
             <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/5 via-transparent to-cyan-500/5" />
             </div>
-            <div className="relative z-10">{children}</div>
+            <div className="relative z-10 h-full flex flex-col">{children}</div>
         </motion.div>
     );
 }
@@ -65,7 +65,7 @@ export function BentoGrid({ children, className }: BentoGridProps) {
     return (
         <div
             className={cn(
-                "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4",
+                "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 bg-zinc-950",
                 className
             )}
         >

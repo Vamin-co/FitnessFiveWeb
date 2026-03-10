@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
     calculateStreakPure,
     getDayStatus,
-    isDayScheduled,
     formatDate,
     parseLocalDate,
     type RoutineSchedule,

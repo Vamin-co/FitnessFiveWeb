@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface SafariProps {
     url?: string;
@@ -92,16 +93,18 @@ export function Safari({
                     >
                         {children ||
                             (imageSrc && (
-                                <img
-                                    src={imageSrc}
-                                    alt="Safari content"
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        objectPosition: "top",
-                                    }}
-                                />
+                                <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                                    <Image
+                                        src={imageSrc}
+                                        alt="Safari content"
+                                        fill
+                                        sizes="100vw"
+                                        style={{
+                                            objectFit: "cover",
+                                            objectPosition: "top",
+                                        }}
+                                    />
+                                </div>
                             ))}
                     </div>
                 </foreignObject>

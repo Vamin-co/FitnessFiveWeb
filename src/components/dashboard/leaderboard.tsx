@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { LeaderboardEntry } from "@/types";
 import { Flame, Trophy } from "lucide-react";

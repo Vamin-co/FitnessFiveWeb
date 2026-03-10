@@ -5,14 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Dumbbell, Users, User, LogOut, Repeat, X } from "lucide-react";
+import { LayoutDashboard, Dumbbell, Users, User, LogOut, CalendarDays, X } from "lucide-react";
 import { signOut } from "@/lib/actions";
 import { useTransition } from "react";
 import { MobileHeader } from "./mobile-header";
 
 const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/routines", label: "Routines", icon: Repeat },
+    { href: "/plan", label: "Plan", icon: CalendarDays },
     { href: "/workout", label: "Workouts", icon: Dumbbell },
     { href: "/leaderboard", label: "Leaderboard", icon: Users },
     { href: "/profile", label: "Profile", icon: User },
@@ -23,11 +23,6 @@ export function Sidebar() {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    // Close menu on route change
-    useEffect(() => {
-        setIsMenuOpen(false);
-    }, [pathname]);
 
     // Prevent body scroll when menu is open
     useEffect(() => {
@@ -103,9 +98,13 @@ export function Sidebar() {
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1 px-3 py-4">
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                         return (
-                            <Link key={item.href} href={item.href}>
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
                                 <div
                                     className={cn(
                                         "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-150",
@@ -144,4 +143,3 @@ export function Sidebar() {
         </>
     );
 }
-

@@ -10,7 +10,20 @@
  */
 
 import { createClient } from '@/utils/supabase/server';
-import type { DashboardStats } from '@/types';
+import type {
+    Achievement,
+    DashboardStats,
+    GoalProgress,
+    QuestDashboardData,
+    TrainingPlan,
+} from '@/types';
+import {
+    calculateQuestStreak as calculatePlanStreak,
+    getAchievements as getAchievementsFromDomain,
+    getActiveTrainingPlan,
+    getGoalProgress as getGoalProgressFromDomain,
+    getQuestDashboardData,
+} from '@/lib/quest-domain';
 
 // ============================================
 // PROFILE & USER DATA
@@ -52,6 +65,11 @@ export async function getProfile() {
         goals: data.goals || [],
         avatarUrl: data.avatar_url,
         streak: data.streak || 0,
+        waterTargetOz: data.water_target_oz || 128,
+        updatedAt: data.updated_at,
+        timezone: data.timezone || 'UTC',
+        preferredWeightUnit: data.preferred_weight_unit || 'lbs',
+        onboardingCompleted: Boolean(data.onboarding_completed),
         createdAt: data.created_at,
     };
 }
@@ -152,7 +170,8 @@ export async function getLeaderboard() {
         userId: entry.user_id,
         name: entry.name || 'Anonymous',
         avatar: entry.avatar_url,
-        score: entry.score || 0,
+        score: entry.total_completions || entry.score || 0,
+        totalCompletions: entry.total_completions || entry.score || 0,
         streak: entry.streak || 0,
         rank: Number(entry.rank),
         isCurrentUser: user?.id === entry.user_id,
@@ -182,26 +201,59 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         .eq('user_id', user.id)
         .order('recorded_at', { ascending: true });
 
-    // Get workouts this week
+    const activePlan = await getActiveTrainingPlan(user.id);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
 
-    const { data: workoutData } = await supabase
-        .from('workouts')
-        .select('duration, calories_burned, completed')
-        .eq('user_id', user.id)
-        .eq('completed', true)
-        .gte('created_at', weekAgo.toISOString());
+    let workoutsThisWeek = 0;
+    let totalMinutesThisWeek = 0;
+    let caloriesBurnedThisWeek = 0;
+    let streak = 0;
 
-    // Get profile for streak
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('streak')
-        .eq('id', user.id)
-        .single();
+    if (activePlan) {
+        const [{ count: completedQuestCount }, { data: sessionData }] = await Promise.all([
+            supabase
+                .from('scheduled_quests')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('status', 'completed')
+                .gte('due_date', weekAgo.toISOString().split('T')[0]),
+            supabase
+                .from('workout_sessions')
+                .select('duration_minutes, xp_awarded')
+                .eq('user_id', user.id)
+                .eq('status', 'completed')
+                .gte('completed_at', weekAgo.toISOString()),
+        ]);
+
+        const sessions = sessionData || [];
+        workoutsThisWeek = completedQuestCount || sessions.length;
+        totalMinutesThisWeek = sessions.reduce((sum, session) => sum + (session.duration_minutes || 0), 0);
+        caloriesBurnedThisWeek = sessions.reduce((sum, session) => sum + (session.xp_awarded || 0), 0);
+        streak = await calculatePlanStreak(user.id);
+    } else {
+        const [{ data: workoutData }, { data: profile }] = await Promise.all([
+            supabase
+                .from('workouts')
+                .select('duration, calories_burned, completed')
+                .eq('user_id', user.id)
+                .eq('completed', true)
+                .gte('created_at', weekAgo.toISOString()),
+            supabase
+                .from('profiles')
+                .select('streak')
+                .eq('id', user.id)
+                .single(),
+        ]);
+
+        const workouts = workoutData || [];
+        workoutsThisWeek = workouts.length;
+        totalMinutesThisWeek = workouts.reduce((sum, w) => sum + (w.duration || 0), 0);
+        caloriesBurnedThisWeek = workouts.reduce((sum, w) => sum + (w.calories_burned || 0), 0);
+        streak = profile?.streak || 0;
+    }
 
     const weights = weightData || [];
-    const workouts = workoutData || [];
 
     const currentWeight = weights.length > 0
         ? Number(weights[weights.length - 1].weight)
@@ -213,10 +265,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return {
         currentWeight,
         weightChange: startWeight - currentWeight,
-        streak: profile?.streak || 0,
-        workoutsThisWeek: workouts.length,
-        totalMinutesThisWeek: workouts.reduce((sum, w) => sum + (w.duration || 0), 0),
-        caloriesBurnedThisWeek: workouts.reduce((sum, w) => sum + (w.calories_burned || 0), 0),
+        streak,
+        workoutsThisWeek,
+        totalMinutesThisWeek,
+        caloriesBurnedThisWeek,
     };
 }
 
@@ -444,11 +496,6 @@ export async function generateDailyTasks(): Promise<void> {
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayDate = now;
 
-    console.log('[generateDailyTasks] ====== HYDRATION START ======');
-    console.log('[generateDailyTasks] Local Date:', today);
-    console.log('[generateDailyTasks] UTC Date:', new Date().toISOString().split('T')[0]);
-    console.log('[generateDailyTasks] User ID:', user.id);
-
     // Get all active routines with linked workouts AND legacy exercises
     const { data: routines, error: routinesError } = await supabase
         .from('routines')
@@ -465,28 +512,12 @@ export async function generateDailyTasks(): Promise<void> {
         .eq('is_active', true);
 
     if (routinesError) {
-        console.error('[generateDailyTasks] ERROR fetching routines:', routinesError);
+        console.error('Error fetching routines for task generation:', routinesError);
         return;
     }
 
     if (!routines || routines.length === 0) {
-        console.log('[generateDailyTasks] No active routines found');
         return;
-    }
-
-    console.log('[generateDailyTasks] Found', routines.length, 'active routines');
-
-    // Deep diagnostic: log raw routine data
-    for (const r of routines) {
-        console.log('[generateDailyTasks] RAW ROUTINE:', {
-            id: r.id,
-            name: r.name,
-            workout_id: r.workout_id,
-            hasWorkoutsJoin: !!r.workouts,
-            workoutsData: r.workouts,
-            workoutExercisesCount: r.workouts?.exercises?.length || 0,
-            legacyExercisesCount: r.routine_exercises?.length || 0,
-        });
     }
 
     // Get existing daily tasks for today
@@ -497,19 +528,11 @@ export async function generateDailyTasks(): Promise<void> {
         .eq('task_date', today);
 
     const existingRoutineIds = new Set((existingTasks || []).map(t => t.routine_id));
-    console.log('[generateDailyTasks] Existing tasks for', existingRoutineIds.size, 'routines');
 
     // For each routine that's due today and doesn't have tasks yet
     for (const routine of routines) {
         const isDue = isRoutineDue(routine.start_date, routine.frequency_days, todayDate);
         const hasExistingTasks = existingRoutineIds.has(routine.id);
-
-        console.log('[generateDailyTasks] Checking Routine:', routine.name,
-            '| Start:', routine.start_date,
-            '| Frequency:', routine.frequency_days,
-            '| Is Match:', isDue,
-            '| Has Tasks:', hasExistingTasks,
-            '| Workout:', routine.workouts?.title || 'none');
 
         if (!isDue || hasExistingTasks) continue;
 
@@ -525,15 +548,12 @@ export async function generateDailyTasks(): Promise<void> {
         if (routine.workouts?.exercises && routine.workouts.exercises.length > 0) {
             // Use linked workout exercises (NEW way)
             exercisesToInsert = routine.workouts.exercises;
-            console.log('[generateDailyTasks] Using workout exercises:', exercisesToInsert.length);
         } else if (routine.routine_exercises && routine.routine_exercises.length > 0) {
             // Fallback to legacy routine_exercises (OLD way)
             exercisesToInsert = routine.routine_exercises;
-            console.log('[generateDailyTasks] Using legacy exercises:', exercisesToInsert.length);
         }
 
         if (exercisesToInsert.length === 0) {
-            console.log('[generateDailyTasks] No exercises found for routine:', routine.name);
             continue;
         }
 
@@ -552,22 +572,15 @@ export async function generateDailyTasks(): Promise<void> {
             task_date: today,
         }));
 
-        console.log('[generateDailyTasks] Inserting', tasksToInsert.length, 'tasks for', routine.name);
-        console.log('[generateDailyTasks] First task sample:', tasksToInsert[0]);
-
-        const { data: insertedData, error: insertError } = await supabase
+        const { error: insertError } = await supabase
             .from('daily_tasks')
             .insert(tasksToInsert)
             .select();
 
         if (insertError) {
-            console.error('[generateDailyTasks] INSERT ERROR:', insertError);
-        } else {
-            console.log('[generateDailyTasks] Successfully inserted', insertedData?.length || 0, 'tasks');
+            console.error('Error inserting generated tasks:', insertError);
         }
     }
-
-    console.log('[generateDailyTasks] ====== HYDRATION COMPLETE ======');
 }
 
 // Get today's daily tasks
@@ -581,8 +594,6 @@ export async function getDailyTasks(date?: string): Promise<DailyTask[]> {
     const now = new Date();
     const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const taskDate = date || localDate;
-
-    console.log('[getDailyTasks] Fetching for date:', taskDate);
 
     const { data, error } = await supabase
         .from('daily_tasks')
@@ -758,6 +769,11 @@ export async function calculateStreak(): Promise<number> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return 0;
 
+    const activePlan = await getActiveTrainingPlan(user.id);
+    if (activePlan) {
+        return calculatePlanStreak(user.id);
+    }
+
     // Get routines and completions
     const { data: routines } = await supabase
         .from('routines')
@@ -856,4 +872,20 @@ export async function getPlayerStats(): Promise<PlayerStats> {
     const experience = Math.min(100, daysActive); // 100 days = 100%
 
     return { consistency, volume, frequency, experience };
+}
+
+export async function getQuestDashboard(): Promise<QuestDashboardData> {
+    return getQuestDashboardData();
+}
+
+export async function getAchievementsData(): Promise<Achievement[]> {
+    return getAchievementsFromDomain();
+}
+
+export async function getGoalProgressData(): Promise<GoalProgress[]> {
+    return getGoalProgressFromDomain();
+}
+
+export async function getActivePlanData(): Promise<TrainingPlan | null> {
+    return getActiveTrainingPlan();
 }

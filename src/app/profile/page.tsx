@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { getProfile, getWeightHistory, getDashboardStats } from "@/lib/data";
+import { getAchievementsData, getDashboardStats, getGoalProgressData, getProfile, getWeightHistory } from "@/lib/data";
 import { ProfilePageClient } from "./profile-client";
 
 export default async function ProfilePage() {
@@ -11,10 +11,12 @@ export default async function ProfilePage() {
         redirect("/login");
     }
 
-    const [profile, weightHistory, stats] = await Promise.all([
+    const [profile, weightHistory, stats, achievements, goals] = await Promise.all([
         getProfile(),
         getWeightHistory(),
         getDashboardStats(),
+        getAchievementsData(),
+        getGoalProgressData(),
     ]);
 
     return (
@@ -22,6 +24,8 @@ export default async function ProfilePage() {
             profile={profile}
             weightHistory={weightHistory}
             stats={stats}
+            achievements={achievements}
+            goals={goals}
             userEmail={user.email || ""}
         />
     );

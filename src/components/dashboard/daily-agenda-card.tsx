@@ -1,302 +1,191 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useTransition, useState } from "react";
+import { useState, useTransition } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-    Target, Check, Circle, Dumbbell, Loader2,
-    BedDouble, AlertTriangle, RefreshCw, Calendar
-} from "lucide-react";
+import { completeQuest, rescheduleQuest } from "@/lib/actions";
 import { cn } from "@/lib/utils";
-import { completeDailyTask, triggerTaskGeneration } from "@/lib/actions";
-import type { DailyTask, Routine } from "@/types";
+import type { ScheduledQuest } from "@/types";
+import {
+    ArrowRightLeft,
+    CalendarCheck2,
+    CheckCircle2,
+    Dumbbell,
+    Loader2,
+    Sparkles,
+    Swords,
+    Target,
+} from "lucide-react";
 
 interface DailyAgendaCardProps {
-    dailyTasks: DailyTask[];
-    todaysRoutines: { routine: Routine; tasks: DailyTask[]; allCompleted: boolean }[];
-    hasRoutines: boolean;
-    systemDate: string; // YYYY-MM-DD format for debugging
-    routineStartDates: { name: string; startDate: string; frequencyDays: number }[];
+    quests: ScheduledQuest[];
+    hasPlan: boolean;
+    planName: string | null;
 }
 
-export function DailyAgendaCard({
-    dailyTasks,
-    todaysRoutines,
-    hasRoutines,
-    systemDate,
-    routineStartDates,
-}: DailyAgendaCardProps) {
+export function DailyAgendaCard({ quests, hasPlan, planName }: DailyAgendaCardProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
-    const [justCompletedIds, setJustCompletedIds] = useState<Set<string>>(new Set());
+    const [completingQuestId, setCompletingQuestId] = useState<string | null>(null);
+    const [movingQuestId, setMovingQuestId] = useState<string | null>(null);
 
-    const totalTasks = dailyTasks.length;
-    const completedTasks = dailyTasks.filter(t => t.completed).length;
-    const allComplete = totalTasks > 0 && completedTasks === totalTasks;
+    const completedCount = quests.filter((quest) => quest.status === "completed").length;
+    const allComplete = quests.length > 0 && completedCount === quests.length;
 
-    // Determine which state to show
-    const isRestDay = hasRoutines && todaysRoutines.length === 0;
-    const isScheduledButMissing = hasRoutines && todaysRoutines.length > 0 && totalTasks === 0;
-    const isScheduledAndReady = totalTasks > 0;
-
-    const handleCompleteTask = (taskId: string, isAlreadyCompleted: boolean) => {
-        // Prevent clicking on already completed tasks
-        if (isAlreadyCompleted || completingTaskId) return;
-
-        setCompletingTaskId(taskId);
+    const handleComplete = (questId: string) => {
+        setCompletingQuestId(questId);
         startTransition(async () => {
-            await completeDailyTask(taskId);
-            // Add to just completed for animation
-            setJustCompletedIds(prev => new Set([...prev, taskId]));
-            setCompletingTaskId(null);
+            await completeQuest(questId);
+            setCompletingQuestId(null);
             router.refresh();
         });
     };
 
-    const handleInitializeWorkout = async () => {
-        setIsGenerating(true);
+    const handleReschedule = (questId: string) => {
+        setMovingQuestId(questId);
         startTransition(async () => {
-            await triggerTaskGeneration();
-            setIsGenerating(false);
+            await rescheduleQuest(questId);
+            setMovingQuestId(null);
             router.refresh();
         });
     };
+
+    if (!hasPlan) {
+        return (
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                <div className="rounded-2xl bg-zinc-800/80 p-4 shadow-inner">
+                    <Target className="h-10 w-10 text-zinc-400" />
+                </div>
+                <h2 className="mt-5 text-xl font-semibold text-white">No quests yet</h2>
+                <p className="mt-2 max-w-sm text-sm text-zinc-400">
+                    Your dashboard becomes a quest board once you save an active training plan.
+                </p>
+            </div>
+        );
+    }
+
+    if (quests.length === 0) {
+        return (
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                <div className="rounded-2xl bg-indigo-500/10 p-4 shadow-inner">
+                    <CalendarCheck2 className="h-10 w-10 text-indigo-400 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                </div>
+                <h2 className="mt-5 text-xl font-semibold text-white tracking-tight">Recovery day</h2>
+                <p className="mt-2 text-sm text-zinc-400">
+                    {planName ? `${planName} has no quests due today.` : "No quests are due today."}
+                </p>
+            </div>
+        );
+    }
 
     return (
-        <Card className="border-zinc-800 bg-zinc-900/50 p-5 h-full">
-            {/* Header */}
-            <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-amber-400" />
-                    <h2 className="text-lg font-semibold text-white">
-                        Today&apos;s Agenda
-                    </h2>
+        <div className="flex h-full flex-col p-5 md:p-6">
+            <div className="mb-6 flex items-start justify-between">
+                <div>
+                    <div className="flex items-center gap-2">
+                        <Swords className="h-6 w-6 text-amber-400 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                        <h2 className="text-xl font-bold text-white tracking-tight">Today&apos;s Quests</h2>
+                    </div>
+                    {planName && (
+                        <p className="mt-1 text-sm font-medium text-zinc-400">{planName}</p>
+                    )}
                 </div>
-                {isScheduledAndReady && (
-                    <Badge className={cn(
-                        "border-0",
-                        allComplete
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : "bg-cyan-500/20 text-cyan-400"
-                    )}>
-                        {completedTasks}/{totalTasks} Complete
-                    </Badge>
-                )}
+                <Badge className={cn(
+                    "border-0 shadow-sm px-2.5 py-1 text-xs font-bold",
+                    allComplete ? "bg-emerald-500/15 text-emerald-300" : "bg-cyan-500/15 text-cyan-300"
+                )}>
+                    {completedCount} / {quests.length}
+                </Badge>
             </div>
 
-            {/* State A: Scheduled & Ready */}
-            {isScheduledAndReady && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-2"
-                >
-                    {/* Show routine name if available */}
-                    {todaysRoutines.length > 0 && (
-                        <div className="mb-3 flex items-center gap-2">
-                            <Dumbbell className="h-4 w-4 text-emerald-400" />
-                            <span className="text-sm font-medium text-emerald-400">
-                                Target: {todaysRoutines.map(r => r.routine.name).join(", ")}
-                            </span>
-                        </div>
-                    )}
+            <div className="space-y-3">
+                {quests.map((quest, index) => {
+                    const isCompleted = quest.status === "completed";
+                    const isCompleting = completingQuestId === quest.id;
+                    const isMoving = movingQuestId === quest.id;
 
-                    {/* Task list */}
-                    <div className="space-y-2 max-h-[250px] overflow-y-auto">
-                        {dailyTasks.map((task) => {
-                            const isCompleting = completingTaskId === task.id;
-                            const wasJustCompleted = justCompletedIds.has(task.id);
-                            const isCompleted = task.completed || wasJustCompleted;
-
-                            return (
-                                <motion.button
-                                    key={task.id}
-                                    onClick={() => handleCompleteTask(task.id, isCompleted)}
-                                    disabled={isPending || isCompleted}
-                                    whileTap={!isCompleted ? { scale: 0.98 } : undefined}
-                                    className={cn(
-                                        "flex w-full items-center gap-3 rounded-xl p-3 md:p-3 text-left transition-all select-none",
-                                        // Larger touch target on mobile
-                                        "min-h-[52px] touch-manipulation",
-                                        isCompleted
-                                            ? "bg-emerald-500/10 border border-emerald-500/20 cursor-default"
-                                            : "bg-zinc-800/50 border border-zinc-700 hover:border-emerald-500/50 hover:bg-zinc-800 active:bg-zinc-700/50 cursor-pointer"
-                                    )}
-                                    aria-label={isCompleted ? `${task.name} - completed` : `Complete ${task.name}`}
-                                >
-                                    {/* Checkbox circle */}
-                                    <motion.div
-                                        className={cn(
-                                            "flex h-6 w-6 items-center justify-center rounded-full border-2 flex-shrink-0 transition-colors",
-                                            isCompleted
-                                                ? "border-emerald-500 bg-emerald-500 text-white"
-                                                : "border-zinc-600 group-hover:border-emerald-500"
-                                        )}
-                                        animate={isCompleting ? { scale: [1, 1.2, 1] } : undefined}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <AnimatePresence mode="wait">
-                                            {isCompleting ? (
-                                                <motion.div
-                                                    key="loading"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                >
-                                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
-                                                </motion.div>
-                                            ) : isCompleted ? (
-                                                <motion.div
-                                                    key="check"
-                                                    initial={{ scale: 0 }}
-                                                    animate={{ scale: 1 }}
-                                                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                                                >
-                                                    <Check className="h-3.5 w-3.5" />
-                                                </motion.div>
-                                            ) : (
-                                                <motion.div
-                                                    key="circle"
-                                                    initial={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                >
-                                                    <Circle className="h-3.5 w-3.5 text-zinc-600" />
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </motion.div>
-
-                                    {/* Task name */}
-                                    <div className="flex-1 min-w-0">
-                                        <span className={cn(
-                                            "text-sm font-medium truncate block transition-all",
-                                            isCompleted ? "text-emerald-400 line-through opacity-75" : "text-white"
-                                        )}>
-                                            {task.name}
-                                        </span>
+                    return (
+                        <motion.div
+                            key={quest.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.04 }}
+                            className={cn(
+                                "rounded-2xl border p-4 transition-colors",
+                                isCompleted
+                                    ? "border-emerald-500/30 bg-emerald-500/5"
+                                    : "border-zinc-800 bg-zinc-950/60"
+                            )}
+                        >
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <Dumbbell className={cn(
+                                            "h-4 w-4",
+                                            isCompleted ? "text-emerald-300" : "text-cyan-300"
+                                        )} />
+                                        <h3 className="truncate text-base font-semibold text-white">{quest.templateName}</h3>
                                     </div>
-
-                                    {/* Sets/reps info */}
-                                    <span className={cn(
-                                        "text-xs flex-shrink-0 transition-opacity",
-                                        isCompleted ? "text-zinc-600" : "text-zinc-500"
-                                    )}>
-                                        {task.targetSets}×{task.targetReps}
-                                        {task.weight ? ` @ ${task.weight}lbs` : ""}
-                                    </span>
-
-                                    {/* Completed badge */}
-                                    {isCompleted && (
-                                        <motion.div
-                                            initial={{ scale: 0, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ delay: 0.1, type: "spring", stiffness: 500, damping: 25 }}
-                                        >
-                                            <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">
-                                                ✓
+                                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+                                        <Badge className="border-0 bg-zinc-800 text-zinc-300">
+                                            {quest.exerciseCount} exercises
+                                        </Badge>
+                                        <Badge className="border-0 bg-amber-500/10 text-amber-300">
+                                            {quest.rewardXp} XP
+                                        </Badge>
+                                        {quest.scheduleLabel && (
+                                            <Badge className="border-0 bg-cyan-500/10 text-cyan-300">
+                                                {quest.scheduleLabel}
                                             </Badge>
-                                        </motion.div>
+                                        )}
+                                        {quest.focusArea && (
+                                            <span className="truncate text-zinc-500">{quest.focusArea}</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {!isCompleted && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            disabled={isPending || isMoving || isCompleting}
+                                            onClick={() => handleReschedule(quest.id)}
+                                            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                                        >
+                                            {isMoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
+                                            Tomorrow
+                                        </Button>
                                     )}
-                                </motion.button>
-                            );
-                        })}
-                    </div>
-                </motion.div>
-            )}
-
-            {/* State B: Scheduled but Missing (Debug State) */}
-            {isScheduledButMissing && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center py-6 text-center"
-                >
-                    <div className="rounded-2xl bg-yellow-500/10 p-4 mb-4">
-                        <AlertTriangle className="h-10 w-10 text-yellow-400" />
-                    </div>
-                    <div className="mb-2 text-sm font-medium text-yellow-400">
-                        Target: {todaysRoutines.map(r => r.routine.name).join(", ")}
-                    </div>
-                    <p className="text-zinc-400 mb-4">Tasks not yet generated.</p>
-                    <Button
-                        onClick={handleInitializeWorkout}
-                        disabled={isGenerating}
-                        className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600"
-                    >
-                        {isGenerating ? (
-                            <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <RefreshCw className="h-4 w-4" />
-                                Initialize Workout
-                            </>
-                        )}
-                    </Button>
-                </motion.div>
-            )}
-
-            {/* State C: Rest Day */}
-            {isRestDay && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center py-6 text-center"
-                >
-                    <div className="rounded-2xl bg-indigo-500/10 p-4 mb-4">
-                        <BedDouble className="h-10 w-10 text-indigo-400" />
-                    </div>
-                    <p className="text-lg font-medium text-white mb-1">No Routines Scheduled</p>
-                    <p className="text-zinc-400">Recovery Mode Active</p>
-                    <p className="text-xs text-zinc-500 mt-2">Take time to rest and recover 💪</p>
-                </motion.div>
-            )}
-
-            {/* No routines at all */}
-            {!hasRoutines && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center py-6 text-center"
-                >
-                    <div className="rounded-2xl bg-zinc-800 p-4 mb-4">
-                        <Dumbbell className="h-10 w-10 text-zinc-600" />
-                    </div>
-                    <p className="text-zinc-400 mb-3">Create a routine to get started</p>
-                    <Button
-                        onClick={() => router.push("/routines")}
-                        variant="outline"
-                        className="border-zinc-700 text-zinc-300"
-                    >
-                        Go to Routines
-                    </Button>
-                </motion.div>
-            )}
-
-            {/* Date Debugger */}
-            <div className="mt-4 pt-3 border-t border-zinc-800">
-                <div className="flex items-center gap-2 text-[10px] text-zinc-600">
-                    <Calendar className="h-3 w-3" />
-                    <span>System Date: <code className="text-zinc-500">{systemDate}</code></span>
-                    {routineStartDates.length > 0 && (
-                        <>
-                            <span className="mx-1">|</span>
-                            <span>
-                                Routines: {routineStartDates.map(r =>
-                                    `${r.name} (start: ${r.startDate}, every ${r.frequencyDays}d)`
-                                ).join(", ")}
-                            </span>
-                        </>
-                    )}
-                </div>
+                                    <Button
+                                        type="button"
+                                        disabled={isPending || isMoving || isCompleting || isCompleted}
+                                        onClick={() => handleComplete(quest.id)}
+                                        className={cn(
+                                            "min-w-[144px]",
+                                            isCompleted
+                                                ? "bg-emerald-600 text-white hover:bg-emerald-600"
+                                                : "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:from-emerald-600 hover:to-cyan-600"
+                                        )}
+                                    >
+                                        {isCompleting ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : isCompleted ? (
+                                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                                        ) : (
+                                            <Sparkles className="mr-2 h-4 w-4" />
+                                        )}
+                                        {isCompleted ? "Completed" : "Complete Quest"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })}
             </div>
-        </Card>
+        </div>
     );
 }

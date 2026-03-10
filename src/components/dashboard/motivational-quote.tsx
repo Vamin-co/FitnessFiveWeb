@@ -48,7 +48,7 @@ export function MotivationalQuote({ className }: MotivationalQuoteProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className={cn(
-                "h-full flex items-center gap-4 px-4",
+                "h-full flex items-center gap-4 px-4 py-3",
                 className
             )}
         >

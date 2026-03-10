@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -42,11 +42,9 @@ const fadeUp = {
 function ExpandingTile({
   children,
   className = "",
-  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
-  delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -264,7 +262,6 @@ export default function HomePage() {
               {/* Tile 2 — Stay Consistent */}
               <ExpandingTile
                 className="feature-card glass-subtle flex flex-col items-center justify-center overflow-hidden p-6 sm:p-8"
-                delay={0.1}
               >
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
@@ -326,7 +323,6 @@ export default function HomePage() {
               {/* Tile 3 — Track Progress */}
               <ExpandingTile
                 className="feature-card glass-subtle overflow-hidden p-6 sm:p-8"
-                delay={0.2}
               >
                 <div className="flex h-40 items-end justify-between gap-2">
                   {[40, 65, 45, 80, 60, 95, 75].map((h, i) => (
@@ -510,13 +506,13 @@ export default function HomePage() {
 
             <div className="flex flex-wrap justify-center gap-6 text-sm text-zinc-500">
               <Link
-                href="#"
+                href="/privacy"
                 className="cursor-pointer transition-colors duration-200 hover:text-zinc-300"
               >
                 Privacy
               </Link>
               <Link
-                href="#"
+                href="/terms"
                 className="cursor-pointer transition-colors duration-200 hover:text-zinc-300"
               >
                 Terms
@@ -532,4 +528,3 @@ export default function HomePage() {
     </div >
   );
 }
-

@@ -20,7 +20,6 @@ export default async function LeaderboardPage() {
         <LeaderboardPageClient
             leaderboard={leaderboard}
             stats={stats}
-            currentUserId={user.id}
         />
     );
 }

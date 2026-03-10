@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
@@ -11,7 +11,6 @@ import { Lock, CheckCircle, AlertCircle, Loader2, Eye, EyeOff } from "lucide-rea
 
 function ResetPasswordForm() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +22,8 @@ function ResetPasswordForm() {
         e.preventDefault();
         setError(null);
 
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters");
+        if (password.length < 8) {
+            setError("Password must be at least 8 characters");
             return;
         }
 

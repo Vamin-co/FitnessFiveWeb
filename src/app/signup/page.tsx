@@ -45,8 +45,8 @@ export default function SignupPage() {
         // Password validation
         if (!formData.password) {
             errors.password = "Password is required";
-        } else if (formData.password.length < 6) {
-            errors.password = "Password must be at least 6 characters";
+        } else if (formData.password.length < 8) {
+            errors.password = "Password must be at least 8 characters";
         }
 
         setFieldErrors(errors);
@@ -264,7 +264,7 @@ export default function SignupPage() {
                                     {fieldErrors.password}
                                 </motion.p>
                             ) : (
-                                <p className="mt-1 text-xs text-zinc-500">Minimum 6 characters</p>
+                                <p className="mt-1 text-xs text-zinc-500">Minimum 8 characters</p>
                             )}
                         </div>
 
@@ -289,4 +289,3 @@ export default function SignupPage() {
         </div>
     );
 }
-

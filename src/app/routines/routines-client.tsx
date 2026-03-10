@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
     Plus, Trash2, Calendar, Dumbbell, Check, X,
-    Loader2, PartyPopper, ChevronRight, AlertCircle, Circle
+    Loader2, PartyPopper, AlertCircle, Circle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createRoutine, deleteRoutine, completeDailyTask } from "@/lib/actions";

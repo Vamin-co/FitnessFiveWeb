@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { User, Scale, Ruler } from "lucide-react";
+import { User, Scale, Ruler, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BodyStatsCardProps {
@@ -65,6 +64,16 @@ export function BodyStatsCard({
                     </div>
                     <span className="text-sm font-bold text-white">
                         {age ? `${age} yrs` : "—"}
+                    </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Target className="h-3.5 w-3.5 text-amber-400" />
+                        <span className="text-xs text-zinc-400">Goals</span>
+                    </div>
+                    <span className="text-sm font-bold text-white">
+                        {goals.length}
                     </span>
                 </div>
             </div>

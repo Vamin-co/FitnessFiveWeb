@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
 
 export function ContainerScroll({
     titleComponent,
@@ -44,7 +44,7 @@ export function ContainerScroll({
                 style={{ perspective: "1000px" }}
             >
                 <Header translate={translate} titleComponent={titleComponent} />
-                <Card rotate={rotate} translate={translate} scale={scale}>
+                <Card rotate={rotate} scale={scale}>
                     {children}
                 </Card>
             </div>
@@ -56,7 +56,7 @@ function Header({
     translate,
     titleComponent,
 }: {
-    translate: any;
+    translate: MotionValue<number>;
     titleComponent: string | React.ReactNode;
 }) {
     return (
@@ -72,12 +72,10 @@ function Header({
 function Card({
     rotate,
     scale,
-    translate,
     children,
 }: {
-    rotate: any;
-    scale: any;
-    translate: any;
+    rotate: MotionValue<number>;
+    scale: MotionValue<number>;
     children: React.ReactNode;
 }) {
     return (

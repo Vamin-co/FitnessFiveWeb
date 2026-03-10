@@ -13,6 +13,13 @@
  */
 
 import { createClient } from '@/utils/supabase/server';
+import {
+    completeScheduledQuest,
+    createGoalRecord,
+    rescheduleScheduledQuest,
+    saveTrainingPlanDraft,
+    syncDerivedProgressState,
+} from '@/lib/quest-domain';
 import { revalidatePath } from 'next/cache';
 
 // ============================================
@@ -137,6 +144,21 @@ export async function completeWorkout(workoutId: string, duration: number, calor
         return { error: 'Not authenticated' };
     }
 
+    const { data: existingWorkout } = await supabase
+        .from('workouts')
+        .select('completed')
+        .eq('id', workoutId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (!existingWorkout) {
+        return { error: 'Workout not found' };
+    }
+
+    if (existingWorkout.completed) {
+        return { success: true, alreadyCompleted: true };
+    }
+
     const { error } = await supabase
         .from('workouts')
         .update({
@@ -152,20 +174,15 @@ export async function completeWorkout(workoutId: string, duration: number, calor
         return { error: error.message };
     }
 
-    // Update streak (would need an RPC function defined in Supabase)
-    // For now, just increment streak manually
-    const { data: profile } = await supabase
+    const { calculateStreak } = await import('./data');
+    const streak = await calculateStreak();
+    await supabase
         .from('profiles')
-        .select('streak')
-        .eq('id', user.id)
-        .single();
-
-    if (profile) {
-        await supabase
-            .from('profiles')
-            .update({ streak: (profile.streak || 0) + 1 })
-            .eq('id', user.id);
-    }
+        .update({
+            streak,
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
 
     revalidatePath('/workout');
     revalidatePath('/dashboard');
@@ -208,6 +225,8 @@ export async function logWeight(weight: number) {
         .from('profiles')
         .update({ weight })
         .eq('id', user.id);
+
+    await syncDerivedProgressState();
 
     revalidatePath('/profile');
     revalidatePath('/dashboard');
@@ -315,6 +334,7 @@ export async function completeOnboarding(formData: {
     weight: number;
     firstName?: string;
     lastName?: string;
+    timezone?: string;
 }): Promise<{ success: boolean; error?: string }> {
     const supabase = await createClient();
 
@@ -338,6 +358,8 @@ export async function completeOnboarding(formData: {
             weight: formData.weight,
             first_name: formData.firstName,
             last_name: formData.lastName,
+            timezone: formData.timezone || 'UTC',
+            onboarding_completed: true,
             updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -378,6 +400,19 @@ export async function createRoutine(formData: {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { success: false, error: 'Not authenticated' };
+    }
+
+    if (formData.workoutId) {
+        const { data: workout } = await supabase
+            .from('workouts')
+            .select('id')
+            .eq('id', formData.workoutId)
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+        if (!workout) {
+            return { success: false, error: 'Workout not found' };
+        }
     }
 
     const { data, error } = await supabase
@@ -526,6 +561,17 @@ export async function addExerciseToRoutine(formData: {
         return { success: false, error: 'Not authenticated' };
     }
 
+    const { data: routine } = await supabase
+        .from('routines')
+        .select('id')
+        .eq('id', formData.routineId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (!routine) {
+        return { success: false, error: 'Routine not found' };
+    }
+
     // Get the current max order_index
     const { data: existing } = await supabase
         .from('routine_exercises')
@@ -568,6 +614,27 @@ export async function removeExerciseFromRoutine(exerciseId: string): Promise<{ s
         return { success: false, error: 'Not authenticated' };
     }
 
+    const { data: exercise } = await supabase
+        .from('routine_exercises')
+        .select('routine_id')
+        .eq('id', exerciseId)
+        .maybeSingle();
+
+    if (!exercise) {
+        return { success: false, error: 'Exercise not found' };
+    }
+
+    const { data: routine } = await supabase
+        .from('routines')
+        .select('id')
+        .eq('id', exercise.routine_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (!routine) {
+        return { success: false, error: 'Not authorized to remove this exercise' };
+    }
+
     const { error } = await supabase
         .from('routine_exercises')
         .delete()
@@ -598,6 +665,27 @@ export async function updateExercise(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { success: false, error: 'Not authenticated' };
+    }
+
+    const { data: exercise } = await supabase
+        .from('routine_exercises')
+        .select('routine_id')
+        .eq('id', exerciseId)
+        .maybeSingle();
+
+    if (!exercise) {
+        return { success: false, error: 'Exercise not found' };
+    }
+
+    const { data: routine } = await supabase
+        .from('routines')
+        .select('id')
+        .eq('id', exercise.routine_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (!routine) {
+        return { success: false, error: 'Not authorized to update this exercise' };
     }
 
     const updateData: Record<string, unknown> = {};
@@ -712,6 +800,10 @@ export async function toggleDailyTask(taskId: string): Promise<{ success: boolea
 
 // Manually trigger task generation (for debug/recovery)
 export async function triggerTaskGeneration(): Promise<{ success: boolean; tasksCreated: number; error?: string }> {
+    if (process.env.NODE_ENV === 'production') {
+        return { success: false, tasksCreated: 0, error: 'Task generation recovery is disabled in production.' };
+    }
+
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -735,6 +827,87 @@ export async function triggerTaskGeneration(): Promise<{ success: boolean; tasks
     revalidatePath('/routines');
 
     return { success: true, tasksCreated: count || 0 };
+}
+
+export async function saveTrainingPlan(input: {
+    name: string;
+    focusSummary?: string;
+    weeklyTarget: number;
+    timeZone?: string;
+    assignments: Array<{
+        workoutId: string;
+        weekdays: number[];
+    }>;
+}): Promise<{ success: boolean; planId?: string; error?: string }> {
+    try {
+        const result = await saveTrainingPlanDraft(input);
+
+        revalidatePath('/plan');
+        revalidatePath('/dashboard');
+        revalidatePath('/leaderboard');
+
+        return { success: true, planId: result.planId };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unable to save training plan.',
+        };
+    }
+}
+
+export async function completeQuest(questId: string): Promise<{ success: boolean; alreadyCompleted?: boolean; error?: string }> {
+    try {
+        const result = await completeScheduledQuest(questId);
+
+        revalidatePath('/dashboard');
+        revalidatePath('/profile');
+        revalidatePath('/leaderboard');
+
+        return { success: true, alreadyCompleted: result.alreadyCompleted };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unable to complete quest.',
+        };
+    }
+}
+
+export async function rescheduleQuest(questId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await rescheduleScheduledQuest(questId);
+
+        revalidatePath('/dashboard');
+        revalidatePath('/profile');
+
+        return { success: true };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unable to reschedule quest.',
+        };
+    }
+}
+
+export async function createGoal(formData: {
+    goalType: 'body_weight' | 'adherence' | 'streak_days' | 'sessions_per_week';
+    title: string;
+    targetValue: number;
+    unit: string;
+    targetDate?: string;
+}): Promise<{ success: boolean; goalId?: string; error?: string }> {
+    try {
+        const result = await createGoalRecord(formData);
+
+        revalidatePath('/profile');
+        revalidatePath('/dashboard');
+
+        return { success: true, goalId: result.goalId };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unable to create goal.',
+        };
+    }
 }
 
 // ============================================

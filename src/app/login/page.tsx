@@ -7,12 +7,13 @@ import { motion } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { sanitizeInternalPath } from "@/lib/navigation";
 import { Mail, Lock, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+    const redirectTo = sanitizeInternalPath(searchParams.get("redirectTo"), "/dashboard");
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

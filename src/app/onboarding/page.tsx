@@ -35,12 +35,9 @@ export default function OnboardingPage() {
     // Debounced username check
     useEffect(() => {
         if (!formData.username || formData.username.length < 3) {
-            setUsernameStatus('idle');
-            setUsernameError(null);
             return;
         }
 
-        setUsernameStatus('checking');
         const timer = setTimeout(async () => {
             const result = await checkUsernameAvailable(formData.username);
             if (result.available) {
@@ -58,6 +55,16 @@ export default function OnboardingPage() {
     const updateField = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
         setError(null);
+
+        if (field === "username") {
+            if (!value || value.length < 3) {
+                setUsernameStatus('idle');
+                setUsernameError(null);
+            } else {
+                setUsernameStatus('checking');
+                setUsernameError(null);
+            }
+        }
     };
 
     const handleComplete = () => {
@@ -70,6 +77,7 @@ export default function OnboardingPage() {
                 weight: parseFloat(formData.weight),
                 firstName: formData.firstName || undefined,
                 lastName: formData.lastName || undefined,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             });
 
             if (result.success) {

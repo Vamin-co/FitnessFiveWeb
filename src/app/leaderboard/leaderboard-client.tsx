@@ -17,13 +17,11 @@ import type { LeaderboardEntry, DashboardStats } from "@/types";
 interface LeaderboardPageClientProps {
     leaderboard: (LeaderboardEntry & { isCurrentUser?: boolean })[];
     stats: DashboardStats;
-    currentUserId: string;
 }
 
 export function LeaderboardPageClient({
     leaderboard,
     stats,
-    currentUserId
 }: LeaderboardPageClientProps) {
     const [ghostMode, setGhostMode] = useState(false);
     const [selectedGhost, setSelectedGhost] = useState<LeaderboardEntry | null>(null);
@@ -75,7 +73,7 @@ export function LeaderboardPageClient({
                             <Card className="border-zinc-800 bg-zinc-900/50 p-6">
                                 <div className="mb-6 flex items-center gap-2">
                                     <Trophy className="h-5 w-5 text-amber-400" />
-                                    <h2 className="text-lg font-semibold text-white">Weekly Rankings</h2>
+                                    <h2 className="text-lg font-semibold text-white">Consistency Rankings</h2>
                                 </div>
 
                                 {leaderboard.length > 0 ? (
@@ -136,7 +134,7 @@ export function LeaderboardPageClient({
                                                             )}
                                                         </div>
                                                         <div className="flex items-center gap-3 text-sm text-zinc-500">
-                                                            <span>{entry.score.toLocaleString()} pts</span>
+                                                            <span>{entry.score.toLocaleString()} completions</span>
                                                             <span className="flex items-center gap-1 text-orange-400">
                                                                 <Flame className="h-3.5 w-3.5" />
                                                                 {entry.streak} day streak
@@ -184,7 +182,7 @@ export function LeaderboardPageClient({
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-zinc-400">Score</span>
+                                        <span className="text-zinc-400">Completions</span>
                                         <span className="text-xl font-bold text-white">{currentUser?.score?.toLocaleString() || 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -238,7 +236,7 @@ export function LeaderboardPageClient({
 
                                         <div className="space-y-3">
                                             {[
-                                                { label: "Score", yours: currentUser?.score || 0, theirs: selectedGhost.score },
+                                                { label: "Completions", yours: currentUser?.score || 0, theirs: selectedGhost.score },
                                                 { label: "Streak", yours: stats.streak, theirs: selectedGhost.streak },
                                             ].map((stat) => {
                                                 const comparison = compareStats(stat.yours, stat.theirs);
